@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - sqlite_data:/app/data
+    environment:
+      - SQLALCHEMY_DATABASE_URL=sqlite:///data/test.db
+    restart: unless-stopped
+
+  test:
+    build: .
+    command: sh -c "uv pip install --system -e '.[test]' && pytest"
+    environment:
+      - SQLALCHEMY_DATABASE_URL=sqlite:///./test.db
+    volumes:
+      - .:/app
+    profiles:
+      - test
+
+volumes:
+  sqlite_data:
+    name: fastapi_sqlite_data
