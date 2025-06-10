@@ -1,67 +1,40 @@
-# FastAPI Application with SQLite
+# FastAPI Application with Docker
 
-A simple REST API built with FastAPI that provides CRUD operations for managing items. The API uses SQLite as its database and includes unit tests for all endpoints.
+A simple REST API built with FastAPI and Docker. This guide focuses on how to use Docker with this project.
 
-## Features
+## Docker Setup
 
-- FastAPI framework
-- SQLite database with SQLAlchemy ORM
-- CRUD operations for items
-- Unit tests with pytest
-- Docker support
-- API documentation with Swagger UI and ReDoc
-
-## Installation
-
-### Using Docker
+### Building the Image
 
 ```bash
 # Build the image
 docker build -t fastapi-app .
+```
 
+### Running the Container
+
+```bash
 # Run the container
 docker run -d -p 8000:8000 --name fastapi-container fastapi-app
 ```
 
-### Local Development
+### Using Docker Compose
 
-1. Install dependencies:
 ```bash
-pip install -e .
+# Start the application
+docker compose up -d
+
+# Stop the application
+docker compose down
+
+# View logs
+docker compose logs -f
 ```
 
-2. Run the application:
+### Running Tests with Docker
+
 ```bash
-python main.py
-```
-
-## API Documentation
-
-Once the application is running, you can access:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-## Testing
-
-Run the tests using pytest:
-```bash
-pytest
-```
-
-## Project Structure
+# Run tests
+docker compose --profile test up test --build --abort-on-container-exit
 
 ```
-.
-├── main.py           # FastAPI application
-├── database.py       # Database configuration
-├── models.py         # SQLAlchemy models
-├── schemas.py        # Pydantic schemas
-├── tests/           # Test directory
-│   └── test_main.py # Test cases
-├── Dockerfile       # Docker configuration
-└── pyproject.toml   # Project dependencies
-```
-
-## License
-
-MIT
