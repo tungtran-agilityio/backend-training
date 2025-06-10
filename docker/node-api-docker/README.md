@@ -5,11 +5,30 @@ A simple cache API service built with Express.js and Redis.
 ## Prerequisites
 
 - Node.js (v14 or higher)
-- Docker
+- Docker and Docker Compose
 
 ## Setup
 
-1. Start Redis using Docker:
+### Option 1: Run with Docker Compose (Recommended)
+
+1. Start all services:
+```bash
+docker compose up -d
+```
+
+2. Stop all services:
+```bash
+docker compose down
+```
+
+### Option 2: Run with Docker
+
+1. Build the API Docker image:
+```bash
+docker build -t cache-api .
+```
+
+2. Start Redis:
 ```bash
 # Pull Redis image
 docker pull redis:7-alpine
@@ -22,33 +41,22 @@ docker run --name cache-api-redis \
   redis-server --appendonly yes
 ```
 
-2. Install dependencies:
+3. Run the API container:
 ```bash
-npm install
+docker run --name cache-api \
+  -p 3000:3000 \
+  --env-file .env \
+  --link cache-api-redis:redis \
+  -d cache-api
 ```
 
-3. Create a `.env` file in the root directory with the following content:
-```
-PORT=3000
-REDIS_URL=redis://localhost:6379
-```
+## Container Management
 
-4. Start the server:
-```bash
-# Development mode with auto-reload
-npm run dev
+### Using Docker Compose
+- Start all services: `docker compose up -d`
+- Stop all services: `docker compose down`
+- Restart services: `docker compose restart`
 
-# Production mode
-npm start
-```
-
-## Redis Management
-
-- Start Redis container: `docker start cache-api-redis`
-- Stop Redis container: `docker stop cache-api-redis`
-- Remove Redis container: `docker rm -f cache-api-redis`
-- View Redis logs: `docker logs -f cache-api-redis`
-- Connect to Redis CLI: `docker exec -it cache-api-redis redis-cli`
 
 ## API Endpoints
 
