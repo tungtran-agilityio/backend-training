@@ -37,7 +37,7 @@ jobs:
         run: |
           source .venv/bin/activate
           if [ -d "tests" ]; then
-            python -m pytest tests/
+            uv run pytest tests/ --cov=. --cov-report=term-missing
           else
             echo "No tests directory found"
           fi
