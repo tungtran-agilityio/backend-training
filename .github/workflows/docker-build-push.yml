@@ -30,14 +30,14 @@ jobs:
         working-directory: ./docker/python-api-docker
         run: |
           source .venv/bin/activate
-          uv sync
+          uv sync --extras test
 
       - name: Run tests
         working-directory: ./docker/python-api-docker
         run: |
           source .venv/bin/activate
           if [ -d "tests" ]; then
-            uv run pytest --cov=. --cov-report=term-missing
+            uv run pytest
           else
             echo "No tests directory found"
           fi
