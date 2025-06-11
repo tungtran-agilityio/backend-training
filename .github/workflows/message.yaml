@@ -1,0 +1,21 @@
+name: Message
+
+on:
+  workflow_dispatch:
+
+jobs:
+  message:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Debug message
+        run: |
+          echo "::debug::This is a debug message"
+      - name: Error message
+        run: |
+          echo "::error::This is an error message"
+      - name: Warning message
+        run: |
+          echo "::warning::This is a warning message"
+      - name: Info message
+        run: |
+          echo "::info::This is an info message"
