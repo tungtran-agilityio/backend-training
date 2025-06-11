@@ -1,4 +1,4 @@
-name: Build and Push Docker Image v2
+name: Test, Build, Push, and Deploy
 
 on:
   workflow_dispatch:
@@ -66,6 +66,7 @@ jobs:
         with:
           images: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}
           tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
@@ -96,7 +97,7 @@ jobs:
             echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
             
             # Pull the latest image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest || true
             
             # Stop and remove the existing container if it exists
             docker stop python-api || true
