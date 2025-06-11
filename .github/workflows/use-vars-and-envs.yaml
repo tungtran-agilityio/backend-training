@@ -1,0 +1,21 @@
+name: Use Vars and Envs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  use-vars-and-envs:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: show github variables
+        run: |
+          echo "GITHUB_REF: ${{ github.ref }}"
+          echo "GITHUB_SHA: ${{ github.sha }}"
+          echo "GITHUB_REPOSITORY: ${{ github.repository }}"
+          echo "GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}"
+      - name: show variables
+        run: |
+          echo "TEST_VAR: ${{ vars.TEST_VAR }}"
+      - name: show secrets
+        run: |
+          echo "TEST_SECRET: ${{ secrets.TEST_SECRET }}"
