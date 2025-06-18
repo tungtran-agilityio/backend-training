@@ -16,7 +16,7 @@ CREATE TABLE professors (
     hire_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id) ON DELETE SET NULL
 );
 
 -- Create courses table
@@ -52,9 +52,9 @@ CREATE TABLE timetables (
     status VARCHAR(20) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (professor_sin) REFERENCES professors(sin),
-    FOREIGN KEY (course_code) REFERENCES courses(code),
-    FOREIGN KEY (semester_id) REFERENCES semesters(id)
+    FOREIGN KEY (professor_sin) REFERENCES professors(sin) ON DELETE SET NULL,
+    FOREIGN KEY (course_code) REFERENCES courses(code) ON DELETE CASCADE,
+    FOREIGN KEY (semester_id) REFERENCES semesters(id) ON DELETE CASCADE
 );
 
 -- Create students table
@@ -78,8 +78,8 @@ CREATE TABLE student_enrollments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (timetable_id, student_number),
-    FOREIGN KEY (timetable_id) REFERENCES timetables(id),
-    FOREIGN KEY (student_number) REFERENCES students(student_number)
+    FOREIGN KEY (timetable_id) REFERENCES timetables(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_number) REFERENCES students(student_number) ON DELETE CASCADE
 );
 
 -- Create function to automatically update updated_at timestamp
