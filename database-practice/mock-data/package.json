@@ -1,0 +1,14 @@
+{
+  "name": "mock-data",
+  "version": "1.0.0",
+  "main": "generate-mock-data.js",
+  "scripts": {
+    "mock-data": "node generate-mock-data.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0"
+  }
+}
