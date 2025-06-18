@@ -1,0 +1,133 @@
+direction: right
+
+faculties: {
+  shape: sql_table
+  id: varchar(20) {constraint: primary_key}
+  name: varchar(255)
+  created_at: timestamp
+}
+
+professors: {
+  shape: sql_table
+  sin: varchar(20) {constraint: primary_key}
+  name: varchar(255)
+  birthday: date
+  faculty_id: varchar(20) {constraint: foreign_key}
+  email: varchar(255) {constraint: unique}
+  hire_date: date
+}
+
+courses: {
+  shape: sql_table
+  code: varchar(20) {constraint: primary_key}
+  name: varchar(255)
+  credits: decimal
+  description: text
+}
+
+semesters: {
+  shape: sql_table
+  id: varchar(20) {constraint: primary_key}
+  name: varchar(50)
+  start_date: date
+  end_date: date
+  academic_year: varchar(10)
+}
+
+timetables: {
+  shape: sql_table
+  id: uuid {constraint: primary_key}
+  professor_sin: varchar(20) {constraint: foreign_key}
+  course_code: varchar(20) {constraint: foreign_key}
+  semester_id: varchar(20) {constraint: foreign_key}
+  schedule_time: varchar(100)
+  room: varchar(50)
+  max_capacity: smallint
+  status: varchar
+}
+
+students: {
+  shape: sql_table
+  student_number: varchar(20) {constraint: primary_key}
+  first_name: varchar(255)
+  last_name: varchar(255)
+  email: varchar(255) {constraint: unique}
+  enrollment_date: date
+  birthday: date
+}
+
+student_enrollments: {
+  shape: sql_table
+  timetable_id: int {constraint: [foreign_key; primary_key]}
+  student_number: varchar(20) {constraint: [foreign_key; primary_key]}
+  enrollment_date: date
+  status: varchar(20)
+}
+
+# Faculty to Professor relationship (1:N)
+faculties.id -> professors.faculty_id: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+# Professor to TimeTable relationship (1:N) 
+professors.sin -> timetables.professor_sin: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+# Course to TimeTable relationship (1:N)
+courses.code -> timetables.course_code: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+# Semester to TimeTable relationship (1:N)
+semesters.id -> timetables.semester_id: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+# TimeTable to Student Enrollment relationship (1:N)
+timetables.id -> student_enrollments.timetable_id: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+# Student to Student Enrollment relationship (1:N)
+students.student_number -> student_enrollments.student_number: {
+  label: "1:N"
+  style.stroke-width: 3
+  style.font-size: 14
+}
+
+legend: {
+  shape: text
+  label: |md
+    ## Database Relationship
+
+    ### 1:N Relationships
+    - **Faculty → Professor** (1:N): One faculty has many professors
+    - **Professor → TimeTable** (1:N): One professor teaches many courses
+    - **Course → TimeTable** (1:N): One course scheduled many times
+    - **Semester → TimeTable** (1:N): One semester contains many schedules
+    - **TimeTable → Enrollments** (1:N): One schedule has many enrollments
+    - **Student → Enrollments** (1:N): One student has many enrollments
+
+    ### Implicit M:N Relationships
+    - **Students ↔ Courses** (M:N): Many students take many courses
+    - **Professors ↔ Courses** (M:N): Many professors teach many courses
+    - **Students ↔ Professors** (M:N): Many students learn from many professors
+
+    ## Notes:
+    Each table automatically contains 2 fields:
+    - created_at: timestamp
+    - updated_at: timestamp
+    ---
+  |
+}
