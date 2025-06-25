@@ -1,0 +1,28 @@
+# Core web framework
+fastapi
+uvicorn[standard]
+
+# Kafka client
+kafka-python
+
+# Database
+asyncpg
+databases[postgresql]
+sqlalchemy
+psycopg2-binary
+
+# Redis
+redis
+
+# HTTP client
+httpx
+
+# Data validation
+pydantic
+pydantic-settings
+
+# Logging
+structlog
+
+# Retry logic
+tenacity 
