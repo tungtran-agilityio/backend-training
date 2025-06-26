@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App Demo</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form,
+    .chat-container {
+      display: none;
+    }
+
+    .login-form.active,
+    .chat-container.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .messages {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: #f9f9f9;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .message.own {
+      background: #007bff;
+      color: white;
+      text-align: right;
+    }
+
+    .message.other {
+      background: #e9ecef;
+    }
+
+    .message-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .message-input input {
+      flex: 1;
+    }
+
+    .users-list {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f9f9f9;
+    }
+
+    .user-item {
+      padding: 5px;
+      margin: 5px 0;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .user-item:hover {
+      background: #e9ecef;
+    }
+
+    .status {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #dc3545;
+      background: #f8d7da;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Chat App Demo - Kafka Implementation</h1>
+
+    <!-- Login Form -->
+    <div id="loginForm" class="login-form active">
+      <h2>Login / Register</h2>
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" placeholder="Enter username">
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="Enter password">
+      </div>
+      <div class="form-group">
+        <label for="displayName">Display Name:</label>
+        <input type="text" id="displayName" placeholder="Enter display name">
+      </div>
+      <button onclick="login()">Login</button>
+      <button onclick="register()">Register</button>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chatContainer" class="chat-container">
+      <div class="status" id="status">Connecting...</div>
+      <div id="messages" class="messages"></div>
+      <div class="message-input">
+        <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+
+      <div class="users-list">
+        <h3>Connected Users</h3>
+        <div id="usersList"></div>
+      </div>
+
+      <button onclick="logout()" style="margin-top: 20px; background: #dc3545;">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    let socket = null;
+    let currentUser = null;
+    let token = null;
+
+    // Login function
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Email and password are required');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          token = data.token;
+          currentUser = data.user;
+          initializeChat();
+        } else {
+          showError(data.error);
+        }
+      } catch (error) {
+        showError('Login failed: ' + error.message);
+      }
+    }
+
+    // Register function
+    async function register() {
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const displayName = document.getElementById('displayName').value;
+
+      if (!username || !email || !password || !displayName) {
+        showError('All fields are required');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password, displayName })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          token = data.token;
+          currentUser = data.user;
+          initializeChat();
+        } else {
+          showError(data.error);
+        }
+      } catch (error) {
+        showError('Registration failed: ' + error.message);
+      }
+    }
+
+    // Initialize chat
+    function initializeChat() {
+      document.getElementById('loginForm').classList.remove('active');
+      document.getElementById('chatContainer').classList.add('active');
+
+      // Initialize Socket.IO connection
+      socket = io({
+        auth: {
+          token: token
+        }
+      });
+
+      socket.on('connect', () => {
+        document.getElementById('status').textContent = `Connected as ${currentUser.displayName}`;
+        socket.emit('join', { username: currentUser.username });
+      });
+
+      socket.on('disconnect', () => {
+        document.getElementById('status').textContent = 'Disconnected';
+      });
+
+      socket.on('user_joined', (data) => {
+        addMessage(`${data.username} joined the chat`, 'system');
+        updateUsersList();
+      });
+
+      socket.on('user_left', (data) => {
+        addMessage(`${data.username} left the chat`, 'system');
+        updateUsersList();
+      });
+
+      socket.on('new_message', (data) => {
+        addMessage(`${data.from}: ${data.message}`, 'other');
+      });
+
+      socket.on('private_message', (data) => {
+        addMessage(`Private from ${data.from}: ${data.message}`, 'private');
+      });
+
+      socket.on('error', (error) => {
+        showError(error.message || 'Connection error');
+      });
+    }
+
+    // Send message
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+
+      if (message && socket) {
+        socket.emit('send_message', { message });
+        addMessage(`You: ${message}`, 'own');
+        input.value = '';
+      }
+    }
+
+    // Add message to chat
+    function addMessage(text, type) {
+      const messagesDiv = document.getElementById('messages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+      messageDiv.textContent = text;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Update users list (simplified for demo)
+    function updateUsersList() {
+      // In a real implementation, this would fetch and display connected users
+      document.getElementById('usersList').innerHTML = '<div class="user-item">Users list would be updated via Kafka presence events</div>';
+    }
+
+    // Handle enter key press
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error';
+      errorDiv.textContent = message;
+      document.querySelector('.container').insertBefore(errorDiv, document.querySelector('.container').firstChild);
+
+      setTimeout(() => {
+        errorDiv.remove();
+      }, 5000);
+    }
+
+    // Logout
+    function logout() {
+      if (socket) {
+        socket.disconnect();
+      }
+      token = null;
+      currentUser = null;
+      document.getElementById('chatContainer').classList.remove('active');
+      document.getElementById('loginForm').classList.add('active');
+      document.getElementById('messages').innerHTML = '';
+      document.getElementById('usersList').innerHTML = '';
+    }
+  </script>
+</body>
+
+</html>
