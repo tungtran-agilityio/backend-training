@@ -1,0 +1,28 @@
+{
+  "name": "pdf-report-builder",
+  "version": "1.0.0",
+  "description": "PDF Report Builder using Builder Pattern in TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "test": "ts-node src/demo.ts"
+  },
+  "keywords": [
+    "pdf",
+    "builder-pattern",
+    "typescript",
+    "design-patterns"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "ts-node": "^10.9.0"
+  }
+}
