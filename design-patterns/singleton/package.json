@@ -1,0 +1,20 @@
+{
+  "name": "sqlite-singleton-example",
+  "version": "1.0.0",
+  "description": "Singleton pattern implementation for SQLite database connection",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/demo.ts",
+    "start": "node dist/demo.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "sqlite3": "^5.1.0",
+    "@types/sqlite3": "^3.1.0"
+  }
+}
