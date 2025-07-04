@@ -1,0 +1,14 @@
+{
+  "name": "composite-pattern-demo",
+  "version": "1.0.0",
+  "description": "Composite Design Pattern Demo - File System",
+  "main": "file-system-composite.ts",
+  "scripts": {
+    "demo": "tsx simple-composite.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
