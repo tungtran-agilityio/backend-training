@@ -1,0 +1,15 @@
+{
+  "name": "bridge-pattern-demo",
+  "version": "1.0.0",
+  "description": "Bridge Design Pattern Demo - Notification System",
+  "main": "notification-bridge.ts",
+  "scripts": {
+    "demo": "tsx notification-bridge.ts",
+    "demo-alt": "ts-node notification-bridge.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
