@@ -1,0 +1,15 @@
+{
+  "name": "command-pattern",
+  "version": "1.0.0",
+  "description": "Command pattern example with text document operations",
+  "main": "copyText.ts",
+  "scripts": {
+    "start": "ts-node copyText.ts",
+    "dev": "ts-node --watch copyText.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
