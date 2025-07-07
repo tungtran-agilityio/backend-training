@@ -1,0 +1,15 @@
+{
+  "name": "chain-of-responsibility",
+  "version": "1.0.0",
+  "description": "Chain of Responsibility pattern example with email filtering",
+  "main": "emailFilter.ts",
+  "scripts": {
+    "start": "ts-node emailFilter.ts",
+    "dev": "ts-node --watch emailFilter.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  }
+}
