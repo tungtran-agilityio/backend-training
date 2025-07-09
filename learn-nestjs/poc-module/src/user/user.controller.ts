@@ -5,8 +5,11 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UsePipes,
 } from '@nestjs/common';
 import { UserService } from './user.service';
+import { CreateUserBaseDto, createUserBaseSchema } from './user.dto';
+import { ZodValidationPipe } from 'src/common/common.pipe';
 
 @Controller('user')
 export class UserController {
@@ -23,8 +26,9 @@ export class UserController {
   }
 
   @Post()
-  createUser(@Body('name') name: string) {
-    return this.userService.createUser(name);
+  @UsePipes(new ZodValidationPipe(createUserBaseSchema))
+  createUser(@Body() createUserBaseDto: CreateUserBaseDto) {
+    return this.userService.createUser(createUserBaseDto);
   }
 
   @Get(':id/tasks')

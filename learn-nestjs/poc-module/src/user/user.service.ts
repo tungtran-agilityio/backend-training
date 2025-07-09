@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TaskService } from '../task/task.service';
+import { CreateUserBaseDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -13,8 +14,8 @@ export class UserService {
   getUserById(id: number) {
     return `User ${id}`;
   }
-  createUser(name: string) {
-    return `User "${name}" created.`;
+  createUser(createUserBaseDto: CreateUserBaseDto) {
+    return `User "${JSON.stringify(createUserBaseDto)}" created.`;
   }
   getTasksForUser(userId: number) {
     return this.taskService
