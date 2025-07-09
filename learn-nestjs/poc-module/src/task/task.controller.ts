@@ -8,11 +8,14 @@ import {
   ParseIntPipe,
   Post,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { HttpExceptionFilter } from 'src/exception/http-exception.filter';
+import { AuthGuard } from 'src/common/common.guard';
 
 @Controller('task')
+@UseGuards(AuthGuard)
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
