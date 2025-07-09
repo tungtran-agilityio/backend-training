@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   UseFilters,
 } from '@nestjs/common';
@@ -21,7 +22,7 @@ export class TaskController {
   }
 
   @Get(':id')
-  getTaskById(@Param('id') id: number) {
+  getTaskById(@Param('id', ParseIntPipe) id: number) {
     return this.taskService.getTaskById(id);
   }
 

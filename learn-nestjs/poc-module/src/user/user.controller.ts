@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 
 @Controller('user')
@@ -11,7 +18,7 @@ export class UserController {
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: number) {
+  getUserById(@Param('id', ParseIntPipe) id: number) {
     return this.userService.getUserById(id);
   }
 
@@ -21,17 +28,23 @@ export class UserController {
   }
 
   @Get(':id/tasks')
-  getTasksForUser(@Param('id') id: number) {
+  getTasksForUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.getTasksForUser(id);
   }
 
   @Get(':id/tasks/:taskId')
-  getTaskByIdForUser(@Param('id') id: number, @Param('taskId') taskId: number) {
+  getTaskByIdForUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('taskId') taskId: number,
+  ) {
     return this.userService.getTaskByIdForUser(id, taskId);
   }
 
   @Post(':id/tasks')
-  createTaskForUser(@Param('id') id: number, @Body('title') title: string) {
+  createTaskForUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('title') title: string,
+  ) {
     return this.userService.createTaskForUser(id, title);
   }
 }
