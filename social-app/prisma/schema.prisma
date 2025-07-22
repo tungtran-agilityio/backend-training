@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────── models ──────────
+model User {
+  id        String   @id @default(uuid()) @db.Char(36)
+
+  // e-mail — case-insensitive in default MySQL collations
+  email     String   @unique @db.VarChar(254)
+
+  firstName String   @db.VarChar(100)
+  lastName  String   @db.VarChar(100)
+
+  password  String   @db.VarChar(100) // hashed password, no hard limit, validated in code
+
+  // relations
+  posts     Post[]
+  comments  Comment[]
+
+  // timestamps & soft-delete
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?   // NULL → active, not-NULL → deleted
+
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model Post {
+  id        String   @id @default(uuid()) @db.Char(36)
+
+  // FK → User
+  authorId  String   @db.Char(36)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  // business fields
+  title     String   @db.VarChar(150)
+  content   String   @db.Text          // no hard limit, validated in code
+  isPublic  Boolean  @default(false)
+
+  // relations
+  comments  Comment[]
+
+  // timestamps & soft-delete
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([authorId])
+  @@index([deletedAt])
+  @@map("posts")
+}
+
+model Comment {
+  id        String   @id @default(uuid()) @db.Char(36)
+
+  // FK → Post
+  postId    String   @db.Char(36)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Restrict)
+
+  // FK → User
+  authorId  String   @db.Char(36)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  // business field
+  content   String   @db.VarChar(500)
+
+  // timestamps & soft-delete
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([deletedAt])
+  @@map("comments")
+}
