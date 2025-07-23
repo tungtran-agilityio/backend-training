@@ -33,11 +33,6 @@ export class AuthController {
       accessToken: await this.authService.generateAccessToken({
         id: user.userId,
         email: user.email,
-        firstName: '',
-        lastName: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
       }),
     };
   }

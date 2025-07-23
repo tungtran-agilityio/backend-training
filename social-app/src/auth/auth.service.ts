@@ -33,16 +33,16 @@ export class AuthService {
     throw new BadRequestException('Missing or invalid credentials');
   }
 
-  async generateAccessToken(user: Omit<User, 'password'>) {
+  async generateAccessToken(user: Pick<User, 'id' | 'email'>) {
     return this.jwtService.signAsync(
-      { sub: user.id, email: user.email },
+      { sub: user.id, email: user.email }, // Only user ID and email
       { expiresIn: '15m' },
     );
   }
 
-  async generateRefreshToken(user: Omit<User, 'password'>) {
+  async generateRefreshToken(user: Pick<User, 'id' | 'email'>) {
     return this.jwtService.signAsync(
-      { sub: user.id, email: user.email },
+      { sub: user.id, email: user.email }, // Only user ID and email
       { expiresIn: '7d' },
     );
   }
