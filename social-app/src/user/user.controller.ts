@@ -56,6 +56,15 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found or inaccessible',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
   @ApiOkResponse({ type: UserResponseDto })
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
     const user = await this.userService.getUser({ id });
