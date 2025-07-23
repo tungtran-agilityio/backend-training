@@ -1,4 +1,4 @@
-import { PostDto } from 'src/common/dtos/post.dto';
+import { PostDto } from 'src/post/dtos/post.dto';
 import { PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 

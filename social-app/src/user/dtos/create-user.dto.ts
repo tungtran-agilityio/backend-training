@@ -1,4 +1,4 @@
-import { UserDto } from 'src/common/dtos/user.dto';
+import { UserDto } from 'src/user/dtos/user.dto';
 import { PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 

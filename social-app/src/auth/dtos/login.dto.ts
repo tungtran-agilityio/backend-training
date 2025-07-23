@@ -1,5 +1,5 @@
 import { PickType } from '@nestjs/mapped-types';
-import { UserDto } from 'src/common/dtos/user.dto';
+import { UserDto } from 'src/user/dtos/user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto extends PickType(UserDto, [

@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { PostDto } from 'src/common/dtos/post.dto';
+import { PostDto } from 'src/post/dtos/post.dto';
 
 export class UpdatePostDto extends PickType(PostDto, [
   'title',

@@ -27,7 +27,7 @@ import {
   ApiTags,
   ApiQuery,
 } from '@nestjs/swagger';
-import { PostDto } from 'src/common/dtos/post.dto';
+import { PostDto } from 'src/post/dtos/post.dto';
 import { GetPostsQuery } from './dtos/get-posts-query.dto';
 import { UpdatePostDto } from './dtos/update-post.dto';
 import { UpdatePostVisibilityDto } from './dtos/update-post-visibility.dto';
