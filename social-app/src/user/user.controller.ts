@@ -17,12 +17,30 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { Request } from 'express';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { UserResponseDto } from 'src/common/dtos/user.dto';
 
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
+  @ApiBadRequestResponse({
+    description: 'Missing required fields or invalid input data',
+  })
+  @ApiConflictResponse({ description: 'Email already exists' })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure during user registration',
+  })
+  @ApiCreatedResponse({ type: UserResponseDto })
   async createUser(@Body() userCreateInput: CreateUserDto) {
     // get user by email
     const user = await this.userService.getUser({
@@ -38,6 +56,7 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: UserResponseDto })
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
     const user = await this.userService.getUser({ id });
 
@@ -50,6 +69,16 @@ export class UserController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiBadRequestResponse({
+    description: 'Invalid field value or format',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found or not owned by requester',
+  })
+  @ApiOkResponse({ type: UserResponseDto })
   async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userUpdateInput: UpdateUserDto,
@@ -78,6 +107,22 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found or not owned by requester',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
+  @ApiOkResponse({
+    schema: {
+      example: {
+        message: 'User deleted successfully',
+      },
+    },
+  })
   async deleteUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
