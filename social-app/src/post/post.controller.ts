@@ -1,4 +1,129 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Req,
+  UseGuards,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { CreatePostDto } from './dtos/create-post.dto';
+import { PostService } from './post.service';
+import { Request } from 'express';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiQuery,
+} from '@nestjs/swagger';
+import { PostDto } from 'src/common/dtos/post.dto';
+import { GetPostsQuery } from './dtos/get-posts-query.dto';
 
-@Controller('post')
-export class PostController {}
+@ApiTags('posts')
+@ApiBearerAuth()
+@Controller('posts')
+export class PostController {
+  constructor(private readonly postService: PostService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create a new post' })
+  @Post()
+  @ApiCreatedResponse({ type: PostDto })
+  async createPost(
+    @Body() createPostDto: CreatePostDto,
+    @Req() req: Request,
+  ): Promise<PostDto> {
+    const user = req.user as { userId: string };
+    return this.postService.createPost({
+      ...createPostDto,
+      author: {
+        connect: {
+          id: user.userId,
+        },
+      },
+    });
+  }
+
+  @Get(':id')
+  @ApiOkResponse({ type: PostDto })
+  @UseGuards(JwtAuthGuard)
+  async getPost(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
+    const post = await this.postService.getPost({ id });
+
+    const user = req.user as { userId: string };
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    // if post is not public, check if user is the author
+    if (!post.isPublic && post.authorId !== user.userId) {
+      throw new ForbiddenException('You are not allowed to access this post');
+    }
+
+    return post;
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    schema: {
+      example: {
+        data: [
+          {
+            id: 'uuid',
+            authorId: 'uuid',
+            title: 'Example Post',
+            content: 'This is the content of the post.',
+            isPublic: true,
+            createdAt: '2025-02-05T12:00:00Z',
+            updatedAt: '2025-02-05T12:30:00Z',
+          },
+        ],
+        pagination: {
+          currentPage: 1,
+          totalPages: 5,
+          totalItems: 45,
+          limit: 10,
+        },
+      },
+    },
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'authorId', required: false, type: String })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    type: String,
+    example: 'createdAt',
+  })
+  @ApiQuery({
+    name: 'sortOrder',
+    required: false,
+    type: String,
+    example: 'desc',
+  })
+  @ApiQuery({ name: 'isPublic', required: false, type: Boolean })
+  async getPosts(
+    @Query(new ValidationPipe({ transform: true, whitelist: true }))
+    query: GetPostsQuery,
+    @Req() req: Request,
+  ) {
+    const user = req.user as { userId: string };
+
+    return this.postService.getPosts({
+      ...query,
+      userId: user.userId,
+    });
+  }
+}
