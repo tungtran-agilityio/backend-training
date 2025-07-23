@@ -154,6 +154,7 @@ export class PostController {
   @Patch(':id/visibility')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({
+    description: 'Update visibility of a post to public or private.',
     schema: {
       example: {
         id: 'uuid',
@@ -167,8 +168,8 @@ export class PostController {
     @Body() body: UpdatePostVisibilityDto,
     @Req() req: Request,
   ) {
-    const post = await this.postService.getPost({ id });
     const user = req.user as { userId: string };
+    const post = await this.postService.getPost({ id });
     if (!post || post.authorId !== user.userId) {
       throw new NotFoundException('Post not found or not owned by user');
     }
@@ -185,7 +186,13 @@ export class PostController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ type: PostDto })
+  @ApiOkResponse({
+    schema: {
+      example: {
+        message: 'Post deleted successfully.',
+      },
+    },
+  })
   async deletePost(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
