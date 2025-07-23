@@ -62,11 +62,24 @@ export class UserService {
 
   async updateUser(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-    data: Pick<Prisma.UserUpdateInput, 'firstName' | 'lastName'>,
-  ): Promise<User> {
+    data: Pick<
+      Prisma.UserUpdateInput,
+      'firstName' | 'lastName' | 'email' | 'password'
+    >,
+  ): Promise<Omit<User, 'password' | 'deletedAt'>> {
     return this.prismaService.user.update({
       where: userWhereUniqueInput,
       data,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        password: false,
+        deletedAt: false,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
 

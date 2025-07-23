@@ -6,12 +6,16 @@ import {
   NotFoundException,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { Request } from 'express';
 
 @Controller('users')
 export class UserController {
@@ -41,5 +45,33 @@ export class UserController {
     }
 
     return user;
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async updateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() userUpdateInput: UpdateUserDto,
+    @Req() req: Request,
+  ) {
+    // check userid in access token
+    const { userId } = req.user as { userId: string };
+    const existingUser = await this.userService.getUser({ id });
+
+    if (!existingUser || existingUser.deletedAt !== null || userId !== id) {
+      throw new NotFoundException('User not found or not owned by requester');
+    }
+
+    // check if email is already in use
+    if (userUpdateInput.email) {
+      const existingUserWithEmail = await this.userService.getUser({
+        email: userUpdateInput.email,
+      });
+      if (existingUserWithEmail && existingUserWithEmail.id !== id) {
+        throw new ConflictException('Email already in use');
+      }
+    }
+
+    return this.userService.updateUser({ id }, userUpdateInput);
   }
 }
