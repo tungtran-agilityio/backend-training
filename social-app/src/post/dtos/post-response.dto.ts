@@ -38,4 +38,11 @@ export class PostResponseDto extends PickType(PostDto, [
     example: '2024-07-23T10:00:00.000Z',
   })
   updatedAt: Date;
+
+  @ApiProperty({
+    type: String,
+    format: 'date-time',
+    example: '2024-07-23T10:00:00.000Z',
+  })
+  deletedAt: Date | null;
 }

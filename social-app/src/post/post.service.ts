@@ -98,8 +98,11 @@ export class PostService {
   }
 
   async deletePost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
-    return this.prisma.post.delete({
+    return this.prisma.post.update({
       where: postWhereUniqueInput,
+      data: {
+        deletedAt: new Date(),
+      },
     });
   }
 }
