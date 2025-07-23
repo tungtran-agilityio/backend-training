@@ -26,11 +26,16 @@ import {
   ApiOperation,
   ApiTags,
   ApiQuery,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
 } from '@nestjs/swagger';
 import { PostDto } from 'src/post/dtos/post.dto';
 import { GetPostsQuery } from './dtos/get-posts-query.dto';
 import { UpdatePostDto } from './dtos/update-post.dto';
 import { UpdatePostVisibilityDto } from './dtos/update-post-visibility.dto';
+import { PostResponseDto } from './dtos/post-response.dto';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -41,8 +46,17 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Create a new post' })
   @Post()
-  @ApiCreatedResponse({ type: PostDto })
   @HttpCode(201)
+  @ApiCreatedResponse({ type: PostResponseDto })
+  @ApiBadRequestResponse({
+    description: 'Missing or invalid title/content fields',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Req() req: Request,
@@ -59,8 +73,17 @@ export class PostController {
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: PostDto })
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: PostResponseDto })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'Post not found or inaccessible',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
   async getPost(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
     const post = await this.postService.getPost({ id });
 
@@ -80,6 +103,9 @@ export class PostController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
   @ApiOkResponse({
     schema: {
       example: {
@@ -136,6 +162,18 @@ export class PostController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: PostDto })
+  @ApiBadRequestResponse({
+    description: 'Validation failed',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'Post not found or not owned by user',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
+  })
   async updatePost(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePostDto: UpdatePostDto,
@@ -162,6 +200,18 @@ export class PostController {
         updatedAt: '2025-02-05T12:30:00Z',
       },
     },
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid visibility flag',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'Post not found or not owned by user',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
   })
   async updatePostVisibility(
     @Param('id', ParseUUIDPipe) id: string,
@@ -192,6 +242,15 @@ export class PostController {
         message: 'Post deleted successfully.',
       },
     },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing or invalid token',
+  })
+  @ApiNotFoundResponse({
+    description: 'Post not found or not owned by user',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected failure',
   })
   async deletePost(
     @Param('id', ParseUUIDPipe) id: string,
