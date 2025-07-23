@@ -11,6 +11,9 @@ import {
   UseGuards,
   Query,
   ValidationPipe,
+  Patch,
+  HttpCode,
+  Delete,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { CreatePostDto } from './dtos/create-post.dto';
@@ -26,6 +29,8 @@ import {
 } from '@nestjs/swagger';
 import { PostDto } from 'src/common/dtos/post.dto';
 import { GetPostsQuery } from './dtos/get-posts-query.dto';
+import { UpdatePostDto } from './dtos/update-post.dto';
+import { UpdatePostVisibilityDto } from './dtos/update-post-visibility.dto';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -37,6 +42,7 @@ export class PostController {
   @ApiOperation({ summary: 'Create a new post' })
   @Post()
   @ApiCreatedResponse({ type: PostDto })
+  @HttpCode(201)
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Req() req: Request,
@@ -125,5 +131,77 @@ export class PostController {
       ...query,
       userId: user.userId,
     });
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: PostDto })
+  async updatePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePostDto: UpdatePostDto,
+    @Req() req: Request,
+  ) {
+    const user = req.user as { userId: string };
+    const post = await this.postService.getPost({ id });
+
+    if (!post || post.authorId !== user.userId) {
+      throw new NotFoundException('Post not found or not owned by user');
+    }
+
+    return this.postService.updatePost({ id }, updatePostDto);
+  }
+
+  @Patch(':id/visibility')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    schema: {
+      example: {
+        id: 'uuid',
+        isPublic: true,
+        updatedAt: '2025-02-05T12:30:00Z',
+      },
+    },
+  })
+  async updatePostVisibility(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdatePostVisibilityDto,
+    @Req() req: Request,
+  ) {
+    const post = await this.postService.getPost({ id });
+    const user = req.user as { userId: string };
+    if (!post || post.authorId !== user.userId) {
+      throw new NotFoundException('Post not found or not owned by user');
+    }
+    const updated = await this.postService.updatePost(
+      { id },
+      { isPublic: body.isPublic },
+    );
+    return {
+      id: updated.id,
+      isPublic: updated.isPublic,
+      updatedAt: updated.updatedAt,
+    };
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: PostDto })
+  async deletePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ) {
+    const post = await this.postService.getPost({ id });
+
+    const user = req.user as { userId: string };
+
+    if (!post || post.authorId !== user.userId) {
+      throw new NotFoundException('Post not found or not owned by user');
+    }
+
+    await this.postService.deletePost({ id });
+
+    return {
+      message: 'Post deleted successfully.',
+    };
   }
 }
