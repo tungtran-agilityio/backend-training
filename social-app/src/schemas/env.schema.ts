@@ -14,6 +14,7 @@ const envSchema = z.object({
     .default(2 ** 16),
   HASH_TIME_COST: z.coerce.number().int().positive().default(2),
   HASH_PARALLELISM: z.coerce.number().int().positive().default(1),
+  JWT_SECRET: z.string(),
 });
 
 export default envSchema;

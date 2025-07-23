@@ -59,6 +59,14 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Environment Variables
+
+You must set the following environment variable in your .env file:
+
+```
+JWT_SECRET=your_jwt_secret_here
+```
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
