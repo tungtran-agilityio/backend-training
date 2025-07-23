@@ -75,8 +75,6 @@ export class UserService {
         email: true,
         firstName: true,
         lastName: true,
-        password: false,
-        deletedAt: false,
         createdAt: true,
         updatedAt: true,
       },
@@ -85,9 +83,18 @@ export class UserService {
 
   async deleteUser(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User> {
-    return this.prismaService.user.delete({
+  ): Promise<Omit<User, 'password' | 'deletedAt' | 'createdAt' | 'updatedAt'>> {
+    return this.prismaService.user.update({
       where: userWhereUniqueInput,
+      data: {
+        deletedAt: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+      },
     });
   }
 }

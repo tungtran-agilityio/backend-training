@@ -10,6 +10,7 @@ import {
   Post,
   UseGuards,
   Req,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -73,5 +74,23 @@ export class UserController {
     }
 
     return this.userService.updateUser({ id }, userUpdateInput);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async deleteUser(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ) {
+    const { userId } = req.user as { userId: string };
+    const existingUser = await this.userService.getUser({ id });
+
+    if (!existingUser || existingUser.deletedAt !== null || userId !== id) {
+      throw new NotFoundException('User not found or not owned by requester');
+    }
+
+    await this.userService.deleteUser({ id });
+
+    return { message: 'User deleted successfully' };
   }
 }
