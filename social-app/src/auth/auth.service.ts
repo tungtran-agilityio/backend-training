@@ -15,7 +15,11 @@ export class AuthService {
   async signIn(email: string, password: string) {
     const user = await this.userService.getUser({ email });
 
-    if (user && (await this.hashService.verify(user.password, password))) {
+    if (
+      user &&
+      user.deletedAt === null &&
+      (await this.hashService.verify(user.password, password))
+    ) {
       // Remove password from user object
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...userData } = user;
