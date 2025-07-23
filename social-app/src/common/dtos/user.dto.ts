@@ -4,6 +4,7 @@ import {
   IsUUID,
   MaxLength,
   MinLength,
+  IsDate,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 

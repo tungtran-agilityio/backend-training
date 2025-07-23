@@ -41,4 +41,10 @@ export class AuthController {
       }),
     };
   }
+
+  @Post('logout')
+  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+    return { message: 'Logged out successfully' };
+  }
 }
