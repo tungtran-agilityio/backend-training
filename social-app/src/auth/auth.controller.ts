@@ -1,14 +1,21 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
-import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
-import { LoginDto } from './dtos/login.dto';
 import {
   ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
+import { AuthService } from './auth.service';
+import { LoginDto } from './dtos/login.dto';
+import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
+
+// Common decorator for server errors that appears in all endpoints
+const ApiServerErrorResponse = () =>
+  ApiInternalServerErrorResponse({
+    description: 'Unexpected server-side failure',
+  });
 
 @Controller('auth')
 export class AuthController {
@@ -17,9 +24,7 @@ export class AuthController {
   @Post('login')
   @ApiBadRequestResponse({ description: 'Missing or invalid credentials' })
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected server-side failure',
-  })
+  @ApiServerErrorResponse()
   async login(
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -28,19 +33,16 @@ export class AuthController {
       body.email,
       body.password,
     );
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      path: '/auth/refresh',
-    });
+
+    this.setRefreshTokenCookie(res, refreshToken);
+
     return { user, accessToken };
   }
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected server-side failure',
-  })
+  @ApiServerErrorResponse()
   @ApiOkResponse({
     schema: {
       example: {
@@ -49,8 +51,8 @@ export class AuthController {
     },
   })
   async refresh(@Req() req: Request) {
-    // req.user is set by RefreshTokenStrategy
-    const user = req.user as { userId: string; email: string };
+    const user = this.extractUserFromRequest(req);
+
     return {
       accessToken: await this.authService.generateAccessToken({
         id: user.userId,
@@ -64,11 +66,27 @@ export class AuthController {
   @ApiBadRequestResponse({
     description: 'Refresh token missing or invalid format',
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected server-side failure',
-  })
+  @ApiServerErrorResponse()
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+    this.clearRefreshTokenCookie(res);
     return { message: 'Logged out successfully' };
+  }
+
+  private setRefreshTokenCookie(res: Response, refreshToken: string): void {
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      path: '/auth/refresh',
+    });
+  }
+
+  private clearRefreshTokenCookie(res: Response): void {
+    res.clearCookie('refresh_token', { path: '/auth/refresh' });
+  }
+
+  private extractUserFromRequest(req: Request): {
+    userId: string;
+    email: string;
+  } {
+    return req.user as { userId: string; email: string };
   }
 }
