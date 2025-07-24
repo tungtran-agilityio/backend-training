@@ -16,21 +16,27 @@ export class UserDto {
 
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
-  @Transform(({ value }: { value: string }) => value.toLowerCase().trim())
+  @Transform(({ value }: { value: string }) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value,
+  )
   email: string;
 
   @ApiProperty({ example: 'John' })
   @IsString()
   @MinLength(1)
   @MaxLength(100)
-  @Transform(({ value }: { value: string }) => value.trim())
+  @Transform(({ value }: { value: string }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   firstName: string;
 
   @ApiProperty({ example: 'Doe' })
   @IsString()
   @MinLength(1)
   @MaxLength(100)
-  @Transform(({ value }: { value: string }) => value.trim())
+  @Transform(({ value }: { value: string }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   lastName: string;
 
   @ApiProperty({ example: 'password123' })
