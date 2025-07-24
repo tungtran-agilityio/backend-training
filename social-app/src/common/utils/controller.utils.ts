@@ -1,20 +1,15 @@
 import { ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
+import {
+  UserRequest,
+  UserWithEmail,
+} from '../interfaces/common-response.interfaces';
 
 // Common validation pipe with consistent settings
 export const commonValidationPipe = new ValidationPipe({
   whitelist: true,
   transform: true,
 });
-
-// User extraction interfaces
-export interface UserRequest {
-  userId: string;
-}
-
-export interface UserWithEmail extends UserRequest {
-  email: string;
-}
 
 // Common utility functions
 export class ControllerUtils {
