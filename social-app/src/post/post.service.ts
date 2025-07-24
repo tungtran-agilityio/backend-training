@@ -1,18 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  PostData,
+  PostSelectData,
+  GetPostsResponse,
+  GetPostsParams,
+} from './interfaces/post-response.interfaces';
 
 @Injectable()
 export class PostService {
   constructor(private prisma: PrismaService) {}
 
-  async createPost(post: Prisma.PostCreateInput) {
+  async createPost(post: Prisma.PostCreateInput): Promise<PostData> {
     return this.prisma.post.create({
       data: post,
     });
   }
 
-  async getPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
+  async getPost(
+    postWhereUniqueInput: Prisma.PostWhereUniqueInput,
+  ): Promise<PostSelectData | null> {
     return this.prisma.post.findUnique({
       where: postWhereUniqueInput,
       select: {
@@ -36,16 +44,7 @@ export class PostService {
     sortBy = 'createdAt',
     sortOrder = 'desc',
     isPublic,
-  }: {
-    page?: number;
-    limit?: number;
-    userId: string;
-    authorId?: string;
-    search?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    isPublic?: boolean;
-  }) {
+  }: GetPostsParams): Promise<GetPostsResponse> {
     const where: Prisma.PostWhereInput = {};
     if (authorId) where.authorId = authorId;
     if (typeof isPublic === 'boolean') {
@@ -90,14 +89,16 @@ export class PostService {
   async updatePost(
     postWhereUniqueInput: Prisma.PostWhereUniqueInput,
     post: Prisma.PostUpdateInput,
-  ) {
+  ): Promise<PostData> {
     return this.prisma.post.update({
       where: postWhereUniqueInput,
       data: post,
     });
   }
 
-  async deletePost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
+  async deletePost(
+    postWhereUniqueInput: Prisma.PostWhereUniqueInput,
+  ): Promise<PostData> {
     return this.prisma.post.update({
       where: postWhereUniqueInput,
       data: {

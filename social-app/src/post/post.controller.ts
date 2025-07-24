@@ -42,7 +42,14 @@ import {
   ControllerUtils,
   commonValidationPipe,
 } from 'src/common/utils/controller.utils';
-import { PostEntity } from 'src/common/interfaces/controller.interfaces';
+
+import {
+  PostData,
+  PostSelectData,
+  GetPostsResponse,
+  DeletePostResponse,
+  UpdatePostVisibilityResponse,
+} from './interfaces/post-response.interfaces';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -63,7 +70,7 @@ export class PostController {
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Req() req: Request,
-  ): Promise<PostDto> {
+  ): Promise<PostData> {
     const user = ControllerUtils.extractUserFromRequest(req);
 
     return this.postService.createPost({
@@ -123,7 +130,7 @@ export class PostController {
   async getPosts(
     @Query(commonValidationPipe) query: GetPostsQuery,
     @Req() req: Request,
-  ) {
+  ): Promise<GetPostsResponse> {
     const user = ControllerUtils.extractUserFromRequest(req);
 
     return this.postService.getPosts({
@@ -138,7 +145,10 @@ export class PostController {
   @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or inaccessible' })
   @ApiServerErrorResponse()
-  async getPost(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
+  async getPost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Req() req: Request,
+  ): Promise<PostSelectData> {
     const user = ControllerUtils.extractUserFromRequest(req);
     const post = await this.validatePostExistsAndAccess(id, user.userId);
 
@@ -156,7 +166,7 @@ export class PostController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePostDto: UpdatePostDto,
     @Req() req: Request,
-  ) {
+  ): Promise<PostData> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
@@ -183,7 +193,7 @@ export class PostController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdatePostVisibilityDto,
     @Req() req: Request,
-  ) {
+  ): Promise<UpdatePostVisibilityResponse> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
@@ -214,7 +224,7 @@ export class PostController {
   async deletePost(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
-  ) {
+  ): Promise<DeletePostResponse> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
@@ -228,7 +238,7 @@ export class PostController {
   private async validatePostOwnership(
     postId: string,
     userId: string,
-  ): Promise<PostEntity> {
+  ): Promise<PostSelectData> {
     const post = await this.postService.getPost({ id: postId });
 
     if (!post || post.authorId !== userId) {
@@ -241,7 +251,7 @@ export class PostController {
   private async validatePostExistsAndAccess(
     postId: string,
     userId: string,
-  ): Promise<PostEntity> {
+  ): Promise<PostSelectData> {
     const post = await this.postService.getPost({ id: postId });
 
     if (!post) {
