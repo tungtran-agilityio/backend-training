@@ -14,9 +14,7 @@ import {
   NotFoundException,
   ValidationPipe,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { CommentService } from './comment.service';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Request } from 'express';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -28,11 +26,33 @@ import {
   ApiInternalServerErrorResponse,
   ApiQuery,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { CommentService } from './comment.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { GetCommentsQuery } from './dtos/get-comments-query.dto';
 import { CommentResponseDto } from './dtos/comment-response.dto';
+
+// Common decorators
+const ApiServerErrorResponse = () =>
+  ApiInternalServerErrorResponse({ description: 'Internal Server Error' });
+
+// Common validation pipe
+const commonValidationPipe = new ValidationPipe({
+  whitelist: true,
+  transform: true,
+});
+
+interface CommentWithAuthor {
+  id: string;
+  authorId: string;
+  deletedAt: Date | null;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 @ApiTags('comments')
 @ApiBearerAuth()
@@ -53,25 +73,22 @@ export class CommentController {
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiNotFoundResponse({ description: 'Post not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiServerErrorResponse()
   @HttpCode(201)
   async createComment(
     @Param('postId', ParseUUIDPipe) postId: string,
-    @Body(new ValidationPipe({ whitelist: true, transform: true }))
-    body: CreateCommentDto,
+    @Body(commonValidationPipe) body: CreateCommentDto,
     @Req() req: Request,
   ) {
-    // Check if post exists
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
-    if (!post || post.deletedAt !== null) {
-      throw new NotFoundException('Post not found');
-    }
-    const user = req.user as { userId: string };
+    await this.validatePostExists(postId);
+    const user = this.extractUserFromRequest(req);
+
     const comment = await this.commentService.createComment({
       post: { connect: { id: postId } },
       author: { connect: { id: user.userId } },
       content: body.content,
     });
+
     return comment;
   }
 
@@ -115,18 +132,14 @@ export class CommentController {
     type: String,
     example: 'desc',
   })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiNotFoundResponse({ description: 'Post not found or inaccessible' })
-  @ApiInternalServerErrorResponse({ description: 'Internal Server Error' })
+  @ApiServerErrorResponse()
   async getComments(
     @Param('postId', ParseUUIDPipe) postId: string,
-    @Query(new ValidationPipe({ transform: true, whitelist: true }))
-    query: GetCommentsQuery,
+    @Query(commonValidationPipe) query: GetCommentsQuery,
   ) {
-    // Check if post exists
-    const post = await this.prisma.post.findUnique({ where: { id: postId } });
-    if (!post || post.deletedAt !== null) {
-      throw new NotFoundException('Post not found or inaccessible');
-    }
+    await this.validatePostExists(postId, 'Post not found or inaccessible');
 
     return this.commentService.getComments({
       ...query,
@@ -138,11 +151,9 @@ export class CommentController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: CommentResponseDto })
-  @ApiUnauthorizedResponse({
-    description: 'Missing/invalid token (if required)',
-  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiNotFoundResponse({ description: 'Comment not found or inaccessible' })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected failure' })
+  @ApiServerErrorResponse()
   async getComment(@Param('id', ParseUUIDPipe) id: string) {
     const comment = await this.commentService.getComment({ id });
 
@@ -162,19 +173,14 @@ export class CommentController {
   @ApiNotFoundResponse({
     description: 'Comment not found or not owned by user',
   })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected failure' })
+  @ApiServerErrorResponse()
   async updateComment(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body(new ValidationPipe({ whitelist: true, transform: true }))
-    body: UpdateCommentDto,
+    @Body(commonValidationPipe) body: UpdateCommentDto,
     @Req() req: Request,
   ) {
-    const comment = await this.commentService.getComment({ id });
-    const user = req.user as { userId: string };
-
-    if (!comment || comment.authorId !== user.userId) {
-      throw new NotFoundException('Comment not found or not owned by user');
-    }
+    const user = this.extractUserFromRequest(req);
+    await this.validateCommentOwnership(id, user.userId);
 
     return this.commentService.updateComment({ id }, { content: body.content });
   }
@@ -189,23 +195,17 @@ export class CommentController {
       },
     },
   })
-  @ApiUnauthorizedResponse({
-    description: 'Missing/invalid token',
-  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiNotFoundResponse({ description: 'Comment not found or inaccessible' })
-  @ApiInternalServerErrorResponse({ description: 'Unexpected failure' })
+  @ApiServerErrorResponse()
   async deleteComment(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
   ) {
-    const comment = await this.commentService.getComment({ id });
-    const user = req.user as { userId: string };
+    const user = this.extractUserFromRequest(req);
+    const comment = await this.validateCommentOwnership(id, user.userId);
 
-    if (
-      !comment ||
-      comment.authorId !== user.userId ||
-      comment.deletedAt !== null
-    ) {
+    if (comment.deletedAt !== null) {
       throw new NotFoundException('Comment not found or not owned by user');
     }
 
@@ -214,5 +214,32 @@ export class CommentController {
     return {
       message: 'Comment deleted successfully',
     };
+  }
+
+  private extractUserFromRequest(req: Request): { userId: string } {
+    return req.user as { userId: string };
+  }
+
+  private async validatePostExists(
+    postId: string,
+    errorMessage: string = 'Post not found',
+  ): Promise<void> {
+    const post = await this.prisma.post.findUnique({ where: { id: postId } });
+    if (!post || post.deletedAt !== null) {
+      throw new NotFoundException(errorMessage);
+    }
+  }
+
+  private async validateCommentOwnership(
+    commentId: string,
+    userId: string,
+  ): Promise<CommentWithAuthor> {
+    const comment = await this.commentService.getComment({ id: commentId });
+
+    if (!comment || comment.authorId !== userId) {
+      throw new NotFoundException('Comment not found or not owned by user');
+    }
+
+    return comment;
   }
 }
