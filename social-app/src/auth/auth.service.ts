@@ -3,6 +3,7 @@ import { UserService } from 'src/user/user.service';
 import { HashService } from 'src/common/services/hash.service';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'generated/prisma';
+import { SignInResponse } from './interfaces/auth-response.interfaces';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(email: string, password: string) {
+  async signIn(email: string, password: string): Promise<SignInResponse> {
     const user = await this.userService.getUser({ email });
 
     if (
@@ -33,14 +34,16 @@ export class AuthService {
     throw new BadRequestException('Missing or invalid credentials');
   }
 
-  async generateAccessToken(user: Pick<User, 'id' | 'email'>) {
+  async generateAccessToken(user: Pick<User, 'id' | 'email'>): Promise<string> {
     return this.jwtService.signAsync(
       { sub: user.id, email: user.email }, // Only user ID and email
       { expiresIn: '15m' },
     );
   }
 
-  async generateRefreshToken(user: Pick<User, 'id' | 'email'>) {
+  async generateRefreshToken(
+    user: Pick<User, 'id' | 'email'>,
+  ): Promise<string> {
     return this.jwtService.signAsync(
       { sub: user.id, email: user.email }, // Only user ID and email
       { expiresIn: '7d' },

@@ -10,6 +10,11 @@ import {
   ApiUnauthorizedErrorResponse,
 } from 'src/common/decorators/api-common.decorators';
 import { ControllerUtils } from 'src/common/utils/controller.utils';
+import {
+  LoginResponse,
+  RefreshTokenResponse,
+  LogoutResponse,
+} from './interfaces/auth-response.interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -22,7 +27,7 @@ export class AuthController {
   async login(
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<LoginResponse> {
     const { user, accessToken, refreshToken } = await this.authService.signIn(
       body.email,
       body.password,
@@ -44,7 +49,7 @@ export class AuthController {
       },
     },
   })
-  async refresh(@Req() req: Request) {
+  async refresh(@Req() req: Request): Promise<RefreshTokenResponse> {
     const user = ControllerUtils.extractUserWithEmailFromRequest(req);
 
     return {
@@ -61,7 +66,10 @@ export class AuthController {
     description: 'Refresh token missing or invalid format',
   })
   @ApiServerErrorResponse()
-  logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): LogoutResponse {
     this.clearRefreshTokenCookie(res);
     return { message: 'Logged out successfully' };
   }
