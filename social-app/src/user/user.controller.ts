@@ -17,11 +17,9 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { UserService } from './user.service';
@@ -29,18 +27,12 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-
-// Common decorators
-const ApiServerErrorResponse = () =>
-  ApiInternalServerErrorResponse({ description: 'Unexpected failure' });
-
-interface UserWithDeletion {
-  id: string;
-  email: string;
-  deletedAt: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import {
+  ApiServerErrorResponse,
+  ApiUnauthorizedErrorResponse,
+} from 'src/common/decorators/api-common.decorators';
+import { ControllerUtils } from 'src/common/utils/controller.utils';
+import { UserEntity } from 'src/common/interfaces/controller.interfaces';
 
 @Controller('users')
 @ApiTags('users')
@@ -61,7 +53,7 @@ export class UserController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'User not found or inaccessible' })
   @ApiServerErrorResponse()
   @ApiOkResponse({ type: UserResponseDto })
@@ -78,7 +70,7 @@ export class UserController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBadRequestResponse({ description: 'Invalid field value or format' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({
     description: 'User not found or not owned by requester',
   })
@@ -89,7 +81,7 @@ export class UserController {
     @Body() userUpdateInput: UpdateUserDto,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateUserOwnership(id, user.userId);
 
     // Check if email is already in use by another user
@@ -102,7 +94,7 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({
     description: 'User not found or not owned by requester',
   })
@@ -118,16 +110,12 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateUserOwnership(id, user.userId);
 
     await this.userService.deleteUser({ id });
 
     return { message: 'User deleted successfully' };
-  }
-
-  private extractUserFromRequest(req: Request): { userId: string } {
-    return req.user as { userId: string };
   }
 
   private async validateEmailNotExists(
@@ -146,7 +134,7 @@ export class UserController {
   private async validateUserOwnership(
     userId: string,
     requesterId: string,
-  ): Promise<UserWithDeletion> {
+  ): Promise<UserEntity> {
     const existingUser = await this.userService.getUser({ id: userId });
 
     if (

@@ -10,7 +10,6 @@ import {
   Req,
   UseGuards,
   Query,
-  ValidationPipe,
   Patch,
   HttpCode,
   Delete,
@@ -24,8 +23,6 @@ import {
   ApiTags,
   ApiQuery,
   ApiBadRequestResponse,
-  ApiUnauthorizedResponse,
-  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
 
@@ -37,27 +34,15 @@ import { GetPostsQuery } from './dtos/get-posts-query.dto';
 import { UpdatePostDto } from './dtos/update-post.dto';
 import { UpdatePostVisibilityDto } from './dtos/update-post-visibility.dto';
 import { PostResponseDto } from './dtos/post-response.dto';
-
-// Common decorators
-const ApiServerErrorResponse = () =>
-  ApiInternalServerErrorResponse({ description: 'Unexpected failure' });
-
-// Common validation pipe
-const commonValidationPipe = new ValidationPipe({
-  transform: true,
-  whitelist: true,
-});
-
-interface PostWithAuthor {
-  id: string;
-  authorId: string;
-  title: string;
-  content: string;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date | null;
-}
+import {
+  ApiServerErrorResponse,
+  ApiUnauthorizedErrorResponse,
+} from 'src/common/decorators/api-common.decorators';
+import {
+  ControllerUtils,
+  commonValidationPipe,
+} from 'src/common/utils/controller.utils';
+import { PostEntity } from 'src/common/interfaces/controller.interfaces';
 
 @ApiTags('posts')
 @ApiBearerAuth()
@@ -73,13 +58,13 @@ export class PostController {
   @ApiBadRequestResponse({
     description: 'Missing or invalid title/content fields',
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiServerErrorResponse()
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Req() req: Request,
   ): Promise<PostDto> {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
 
     return this.postService.createPost({
       ...createPostDto,
@@ -133,13 +118,13 @@ export class PostController {
     example: 'desc',
   })
   @ApiQuery({ name: 'isPublic', required: false, type: Boolean })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiServerErrorResponse()
   async getPosts(
     @Query(commonValidationPipe) query: GetPostsQuery,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
 
     return this.postService.getPosts({
       ...query,
@@ -150,11 +135,11 @@ export class PostController {
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: PostResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or inaccessible' })
   @ApiServerErrorResponse()
   async getPost(@Param('id', ParseUUIDPipe) id: string, @Req() req: Request) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     const post = await this.validatePostExistsAndAccess(id, user.userId);
 
     return post;
@@ -164,7 +149,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @ApiOkResponse({ type: PostDto })
   @ApiBadRequestResponse({ description: 'Validation failed' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or not owned by user' })
   @ApiServerErrorResponse()
   async updatePost(
@@ -172,7 +157,7 @@ export class PostController {
     @Body() updatePostDto: UpdatePostDto,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
     return this.postService.updatePost({ id }, updatePostDto);
@@ -191,7 +176,7 @@ export class PostController {
     },
   })
   @ApiBadRequestResponse({ description: 'Invalid visibility flag' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or not owned by user' })
   @ApiServerErrorResponse()
   async updatePostVisibility(
@@ -199,7 +184,7 @@ export class PostController {
     @Body() body: UpdatePostVisibilityDto,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
     const updated = await this.postService.updatePost(
@@ -223,14 +208,14 @@ export class PostController {
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or not owned by user' })
   @ApiServerErrorResponse()
   async deletePost(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validatePostOwnership(id, user.userId);
 
     await this.postService.deletePost({ id });
@@ -240,14 +225,10 @@ export class PostController {
     };
   }
 
-  private extractUserFromRequest(req: Request): { userId: string } {
-    return req.user as { userId: string };
-  }
-
   private async validatePostOwnership(
     postId: string,
     userId: string,
-  ): Promise<PostWithAuthor> {
+  ): Promise<PostEntity> {
     const post = await this.postService.getPost({ id: postId });
 
     if (!post || post.authorId !== userId) {
@@ -260,7 +241,7 @@ export class PostController {
   private async validatePostExistsAndAccess(
     postId: string,
     userId: string,
-  ): Promise<PostWithAuthor> {
+  ): Promise<PostEntity> {
     const post = await this.postService.getPost({ id: postId });
 
     if (!post) {

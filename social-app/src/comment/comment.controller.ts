@@ -12,7 +12,6 @@ import {
   ParseUUIDPipe,
   HttpCode,
   NotFoundException,
-  ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
 import {
@@ -21,9 +20,7 @@ import {
   ApiOkResponse,
   ApiTags,
   ApiBadRequestResponse,
-  ApiUnauthorizedResponse,
   ApiNotFoundResponse,
-  ApiInternalServerErrorResponse,
   ApiQuery,
 } from '@nestjs/swagger';
 
@@ -34,25 +31,15 @@ import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { GetCommentsQuery } from './dtos/get-comments-query.dto';
 import { CommentResponseDto } from './dtos/comment-response.dto';
-
-// Common decorators
-const ApiServerErrorResponse = () =>
-  ApiInternalServerErrorResponse({ description: 'Internal Server Error' });
-
-// Common validation pipe
-const commonValidationPipe = new ValidationPipe({
-  whitelist: true,
-  transform: true,
-});
-
-interface CommentWithAuthor {
-  id: string;
-  authorId: string;
-  deletedAt: Date | null;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import {
+  ApiServerErrorResponse,
+  ApiUnauthorizedErrorResponse,
+} from 'src/common/decorators/api-common.decorators';
+import {
+  ControllerUtils,
+  commonValidationPipe,
+} from 'src/common/utils/controller.utils';
+import { CommentEntity } from 'src/common/interfaces/controller.interfaces';
 
 @ApiTags('comments')
 @ApiBearerAuth()
@@ -71,7 +58,7 @@ export class CommentController {
     description: 'Comment created successfully',
   })
   @ApiBadRequestResponse({ description: 'Validation failed' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found' })
   @ApiServerErrorResponse()
   @HttpCode(201)
@@ -81,7 +68,7 @@ export class CommentController {
     @Req() req: Request,
   ) {
     await this.validatePostExists(postId);
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
 
     const comment = await this.commentService.createComment({
       post: { connect: { id: postId } },
@@ -132,7 +119,7 @@ export class CommentController {
     type: String,
     example: 'desc',
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Post not found or inaccessible' })
   @ApiServerErrorResponse()
   async getComments(
@@ -151,7 +138,7 @@ export class CommentController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: CommentResponseDto })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Comment not found or inaccessible' })
   @ApiServerErrorResponse()
   async getComment(@Param('id', ParseUUIDPipe) id: string) {
@@ -169,7 +156,7 @@ export class CommentController {
   @ApiBearerAuth()
   @ApiOkResponse({ type: CommentResponseDto })
   @ApiBadRequestResponse({ description: 'Invalid input or missing content' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({
     description: 'Comment not found or not owned by user',
   })
@@ -179,7 +166,7 @@ export class CommentController {
     @Body(commonValidationPipe) body: UpdateCommentDto,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateCommentOwnership(id, user.userId);
 
     return this.commentService.updateComment({ id }, { content: body.content });
@@ -195,14 +182,14 @@ export class CommentController {
       },
     },
   })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Comment not found or inaccessible' })
   @ApiServerErrorResponse()
   async deleteComment(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
   ) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserFromRequest(req);
     const comment = await this.validateCommentOwnership(id, user.userId);
 
     if (comment.deletedAt !== null) {
@@ -214,10 +201,6 @@ export class CommentController {
     return {
       message: 'Comment deleted successfully',
     };
-  }
-
-  private extractUserFromRequest(req: Request): { userId: string } {
-    return req.user as { userId: string };
   }
 
   private async validatePostExists(
@@ -233,7 +216,7 @@ export class CommentController {
   private async validateCommentOwnership(
     commentId: string,
     userId: string,
-  ): Promise<CommentWithAuthor> {
+  ): Promise<CommentEntity> {
     const comment = await this.commentService.getComment({ id: commentId });
 
     if (!comment || comment.authorId !== userId) {

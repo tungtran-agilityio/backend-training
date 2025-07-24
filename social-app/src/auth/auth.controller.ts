@@ -1,21 +1,15 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
-import {
-  ApiBadRequestResponse,
-  ApiInternalServerErrorResponse,
-  ApiOkResponse,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
-
-// Common decorator for server errors that appears in all endpoints
-const ApiServerErrorResponse = () =>
-  ApiInternalServerErrorResponse({
-    description: 'Unexpected server-side failure',
-  });
+import {
+  ApiServerErrorResponse,
+  ApiUnauthorizedErrorResponse,
+} from 'src/common/decorators/api-common.decorators';
+import { ControllerUtils } from 'src/common/utils/controller.utils';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +17,7 @@ export class AuthController {
 
   @Post('login')
   @ApiBadRequestResponse({ description: 'Missing or invalid credentials' })
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiServerErrorResponse()
   async login(
     @Body() body: LoginDto,
@@ -41,7 +35,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
-  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiUnauthorizedErrorResponse()
   @ApiServerErrorResponse()
   @ApiOkResponse({
     schema: {
@@ -51,7 +45,7 @@ export class AuthController {
     },
   })
   async refresh(@Req() req: Request) {
-    const user = this.extractUserFromRequest(req);
+    const user = ControllerUtils.extractUserWithEmailFromRequest(req);
 
     return {
       accessToken: await this.authService.generateAccessToken({
@@ -81,12 +75,5 @@ export class AuthController {
 
   private clearRefreshTokenCookie(res: Response): void {
     res.clearCookie('refresh_token', { path: '/auth/refresh' });
-  }
-
-  private extractUserFromRequest(req: Request): {
-    userId: string;
-    email: string;
-  } {
-    return req.user as { userId: string; email: string };
   }
 }
