@@ -93,3 +93,66 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+# Social Media App
+
+A NestJS-based social media application with authentication, posts, comments, and user management.
+
+## Features
+
+- User registration and authentication (JWT)
+- Post creation and management
+- Comment system
+- API versioning (v1)
+- Security middleware with Helmet
+- Comprehensive API documentation with Swagger
+
+## Security
+
+This application implements security best practices using [Helmet](https://helmetjs.github.io/):
+
+### Security Headers Enabled
+
+Helmet automatically sets several security-related HTTP headers:
+
+- **X-Content-Type-Options**: Prevents MIME type sniffing
+- **X-Frame-Options**: Prevents clickjacking attacks  
+- **X-XSS-Protection**: Enables XSS filtering
+- **Strict-Transport-Security**: Enforces HTTPS connections
+- **Referrer-Policy**: Controls referrer information
+- **Content-Security-Policy**: Prevents code injection (disabled in development for Swagger compatibility)
+
+### Testing Security Headers
+
+You can verify the security headers are working by making a request to any endpoint:
+
+```bash
+curl -I http://localhost:3000/api/v1/health
+```
+
+You should see headers like:
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 0
+Referrer-Policy: no-referrer
+```
+
+## API Documentation
+
+- **Swagger UI**: Available at `http://localhost:3000/api/v1/docs`
+- **API Version**: v1
+- **Base URL**: `http://localhost:3000/api/v1`
+
+## Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm run start:dev
+
+# Build for production
+pnpm run build
+```

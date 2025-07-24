@@ -5,4 +5,7 @@ ignoredBuiltDependencies:
 onlyBuiltDependencies:
   - '@prisma/engines'
   - argon2
+  - cpu-features
   - prisma
+  - protobufjs
+  - ssh2
