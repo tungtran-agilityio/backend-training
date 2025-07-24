@@ -1,194 +1,217 @@
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
-```
-
-## Init database
-
-```bash
-docker run -d \
-  --name my-mysql \
-  -e MYSQL_ROOT_PASSWORD=secretpw \
-  -e MYSQL_DATABASE=appdb \
-  -p 3307:3306 \
-  -v my-db-volume:/var/lib/mysql \
-  mysql:8.0
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Environment Variables
-
-You must set the following environment variable in your .env file:
-
-```
-JWT_SECRET=your_jwt_secret_here
-```
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
 # Social Media App
 
-A NestJS-based social media application with authentication, posts, comments, and user management.
+A comprehensive NestJS-based social media application with robust authentication, content management, and enterprise-grade security features.
 
-## Features
+## 🚀 Features
 
-- User registration and authentication (JWT)
-- Post creation and management
-- Comment system
-- API versioning (v1)
-- Security middleware with Helmet
-- CORS configuration for cross-origin requests
-- Rate limiting and throttling protection
-- Comprehensive API documentation with Swagger
+- **User Management**: Registration, authentication, and profile management
+- **Content System**: Post creation, editing, and visibility controls
+- **Social Interaction**: Comment system with nested discussions
+- **Security First**: Multi-layer security with Helmet, CORS, and rate limiting
+- **API Versioning**: Future-proof API design with version control
+- **Developer Experience**: Comprehensive Swagger documentation
+- **Production Ready**: Environment-aware configuration and validation
 
-## Security
+## 🛡️ Security
 
-This application implements security best practices using [Helmet](https://helmetjs.github.io/):
+### Multi-Layer Protection
 
-### Security Headers Enabled
+This application implements enterprise-grade security following industry best practices:
 
-Helmet automatically sets several security-related HTTP headers:
+#### Security Headers (Helmet)
+- **X-Content-Type-Options**: Prevents MIME type sniffing attacks
+- **X-Frame-Options**: Protects against clickjacking
+- **X-XSS-Protection**: Cross-site scripting protection
+- **Strict-Transport-Security**: Enforces HTTPS in production
+- **Referrer-Policy**: Controls referrer information leakage
+- **Content-Security-Policy**: Prevents code injection (production only)
 
-- **X-Content-Type-Options**: Prevents MIME type sniffing
-- **X-Frame-Options**: Prevents clickjacking attacks  
-- **X-XSS-Protection**: Enables XSS filtering
-- **Strict-Transport-Security**: Enforces HTTPS connections
-- **Referrer-Policy**: Controls referrer information
-- **Content-Security-Policy**: Prevents code injection (disabled in development for Swagger compatibility)
+#### CORS (Cross-Origin Resource Sharing)
+- **Development**: Permissive settings for rapid development
+- **Production**: Strict origin control via environment configuration
+- **Credentials**: Full support for cookie-based authentication
+- **Flexible**: Multi-origin support for complex deployments
 
-### CORS (Cross-Origin Resource Sharing)
+#### Rate Limiting & Throttling
+- **Global Protection**: Multi-tier rate limiting (3/sec, 20/10sec, 100/min)
+- **Endpoint-Specific**: Custom limits for sensitive operations
+- **Brute Force Protection**: Login attempt limiting
+- **Spam Prevention**: Registration rate limiting
+- **Automatic Headers**: Real-time limit information in responses
 
-CORS is configured to allow frontend applications to communicate with the API:
+## 📚 API Documentation
 
-#### Development Mode
-- **Origin**: All origins allowed (`*`)
-- **Credentials**: Enabled for cookie-based authentication
-- **Methods**: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
-- **Headers**: `Content-Type`, `Authorization`
+- **Interactive Docs**: [http://localhost:3000/api/v1/docs](http://localhost:3000/api/v1/docs)
+- **API Version**: v1
+- **Base URL**: `http://localhost:3000/api/v1`
+- **Authentication**: Bearer token (JWT)
 
-#### Production Mode
-- **Origin**: Configured via `FRONTEND_URL` environment variable
-- **Multiple Origins**: Comma-separated URLs (e.g., `https://app.example.com,https://admin.example.com`)
-- **Fallback**: No origins allowed if `FRONTEND_URL` is not set
+### Endpoint Overview
 
-#### Environment Configuration
+| Resource | Endpoint                     | Methods                  | Description               |
+| -------- | ---------------------------- | ------------------------ | ------------------------- |
+| Health   | `/api/v1/health`             | GET                      | Application health check  |
+| Users    | `/api/v1/users`              | GET, POST, PATCH, DELETE | User management           |
+| Auth     | `/api/v1/auth/*`             | POST                     | Authentication operations |
+| Posts    | `/api/v1/posts`              | GET, POST, PATCH, DELETE | Content management        |
+| Comments | `/api/v1/posts/:id/comments` | GET, POST, PATCH, DELETE | Social interactions       |
+
+## 🚦 Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- MySQL 8.0+
+- pnpm (recommended) or npm
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd social-app
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up the database**
+   ```bash
+   # MySQL with Docker
+   docker run -d \
+     --name social-app-mysql \
+     -e MYSQL_ROOT_PASSWORD=your_password \
+     -e MYSQL_DATABASE=social_app \
+     -p 3306:3306 \
+     -v social-app-data:/var/lib/mysql \
+     mysql:8.0
+   ```
+   
+   > **Note**: If you already have MySQL running locally, you can use a different port:
+   > ```bash
+   > # Use port 3307 to avoid conflicts
+   > docker run -d \
+   >   --name social-app-mysql \
+   >   -e MYSQL_ROOT_PASSWORD=secretpw \
+   >   -e MYSQL_DATABASE=social_app \
+   >   -p 3307:3306 \
+   >   -v social-app-data:/var/lib/mysql \
+   >   mysql:8.0
+   > ```
+   > Then update your `DATABASE_URL` to use port 3307: `mysql://root:secretpw@localhost:3307/social_app`
+
+4. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Run database migrations**
+   ```bash
+   pnpm prisma migrate dev
+   ```
+
+6. **Start the development server**
+   ```bash
+   pnpm run start:dev
+   ```
+
+The application will be available at [http://localhost:3000](http://localhost:3000)
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the root directory:
 
 ```bash
-# Production CORS configuration
-FRONTEND_URL=https://yourfrontend.com,https://youradmin.com
+# Application
+NODE_ENV=development
+PORT=3000
 
-# Development - no configuration needed (allows all origins)
+# Database
+DATABASE_URL="mysql://username:password@localhost:3306/social_app"
+
+# Security (Required)
+PASSWORD_PEPPER=your-strong-random-pepper-string
+JWT_SECRET=your-jwt-secret-key-minimum-32-characters
+
+# Hash Configuration (Optional - defaults provided)
+HASH_MEMORY_COST=65536    # Memory usage in bytes
+HASH_TIME_COST=2          # Time iterations
+HASH_PARALLELISM=1        # Parallel threads
+
+# CORS (Production only)
+FRONTEND_URL=https://yourapp.com,https://admin.yourapp.com
 ```
 
-### Rate Limiting
+### Required Variables
 
-The API implements multiple layers of rate limiting to prevent abuse and ensure fair usage:
+| Variable          | Description                  | Example                          |
+| ----------------- | ---------------------------- | -------------------------------- |
+| `DATABASE_URL`    | MySQL connection string      | `mysql://user:pass@host:3306/db` |
+| `PASSWORD_PEPPER` | Additional password security | `random-string-min-32-chars`     |
+| `JWT_SECRET`      | JWT signing secret           | `your-secure-secret-key`         |
 
-#### Global Rate Limits
-
-All endpoints are protected with multiple rate limiting tiers:
-
-- **Short Term**: 3 requests per second
-- **Medium Term**: 20 requests per 10 seconds  
-- **Long Term**: 100 requests per minute
-
-#### Endpoint-Specific Limits
-
-Sensitive endpoints have additional restrictions:
-
-| Endpoint                  | Limit      | Duration | Purpose                     |
-| ------------------------- | ---------- | -------- | --------------------------- |
-| `POST /api/v1/auth/login` | 3 requests | 1 minute | Prevent brute force attacks |
-| `POST /api/v1/users`      | 2 requests | 1 minute | Prevent spam registrations  |
-
-#### Rate Limit Headers
-
-When rate limits are exceeded, the API returns:
-
-- **Status Code**: `429 Too Many Requests`
-- **Headers**: 
-  - `X-RateLimit-Limit`: Request limit
-  - `X-RateLimit-Remaining`: Remaining requests
-  - `X-RateLimit-Reset`: Time when limit resets
-
-#### Testing Rate Limits
-
-You can test rate limiting by making rapid requests:
+#### MySQL Connection Examples
 
 ```bash
-# Test global rate limit (should get 429 after 3 requests)
+# Local MySQL (default port)
+DATABASE_URL="mysql://root:password@localhost:3306/social_app"
+
+# Local MySQL (custom port 3307)
+DATABASE_URL="mysql://root:secretpw@localhost:3307/social_app"
+
+# Remote MySQL with SSL
+DATABASE_URL="mysql://user:pass@remote-host:3306/social_app?ssl=true"
+
+# Cloud MySQL (PlanetScale, etc.)
+DATABASE_URL="mysql://user:pass@aws.connect.psdb.cloud/social_app?sslaccept=strict"
+```
+
+### Optional Variables
+
+| Variable       | Default       | Description                           |
+| -------------- | ------------- | ------------------------------------- |
+| `NODE_ENV`     | `development` | Application environment               |
+| `PORT`         | `3000`        | Server port                           |
+| `FRONTEND_URL` | N/A           | CORS allowed origins (production)     |
+| `HASH_*`       | See above     | Argon2 password hashing configuration |
+
+## 🧪 Development
+
+### Available Scripts
+
+```bash
+# Development
+pnpm run start:dev    # Watch mode with auto-reload
+pnpm run start        # Standard development mode
+pnpm run start:prod   # Production mode
+
+# Building
+pnpm run build        # Compile TypeScript
+
+# Testing
+pnpm run test         # Unit tests
+pnpm run test:e2e     # End-to-end tests
+pnpm run test:cov     # Test coverage
+
+# Database
+pnpm prisma studio    # Database GUI
+pnpm prisma migrate   # Run migrations
+```
+
+### Testing Security Features
+
+```bash
+# Test rate limiting
 for i in {1..5}; do curl -w "\n%{http_code}\n" http://localhost:3000/api/v1/health; done
 
-# Test login rate limit
-for i in {1..5}; do 
+# Test security headers
+curl -I http://localhost:3000/api/v1/health
+
+# Test login rate limiting
+for i in {1..4}; do 
   curl -X POST http://localhost:3000/api/v1/auth/login \
     -H "Content-Type: application/json" \
     -d '{"email":"test@test.com","password":"test"}' \
@@ -196,81 +219,100 @@ for i in {1..5}; do
 done
 ```
 
-### Testing Security Headers
+### Customizing Rate Limits
 
-You can verify the security headers are working by making a request to any endpoint:
+Update `src/app.module.ts` to modify global limits:
 
-```bash
-curl -I http://localhost:3000/api/v1/health
+```typescript
+ThrottlerModule.forRoot([
+  {
+    name: 'short',
+    ttl: 1000,    // Time window (ms)
+    limit: 3,     // Max requests
+  },
+  // ... additional tiers
+])
 ```
 
-You should see headers like:
-```
-X-Content-Type-Options: nosniff
-X-Frame-Options: SAMEORIGIN
-X-XSS-Protection: 0
-Referrer-Policy: no-referrer
-Access-Control-Allow-Origin: *
-Access-Control-Allow-Credentials: true
-X-RateLimit-Limit: 100
-X-RateLimit-Remaining: 99
-X-RateLimit-Reset: 1674567890
+Use `@Throttle()` decorator for endpoint-specific limits:
+
+```typescript
+@Post('sensitive-endpoint')
+@Throttle({ short: { limit: 1, ttl: 60000 } })
+async sensitiveOperation() {
+  // Implementation
+}
 ```
 
-## API Documentation
+## 🚀 Deployment
 
-- **Swagger UI**: Available at `http://localhost:3000/api/v1/docs`
-- **API Version**: v1
-- **Base URL**: `http://localhost:3000/api/v1`
+### Production Checklist
 
-## Getting Started
+- [ ] Set `NODE_ENV=production`
+- [ ] Configure secure `JWT_SECRET` (32+ characters)
+- [ ] Set up proper `DATABASE_URL` for MySQL
+- [ ] Configure `FRONTEND_URL` for CORS
+- [ ] Enable HTTPS/TLS
+- [ ] Set up monitoring and logging
+- [ ] Configure backup strategy for MySQL
 
-```bash
-# Install dependencies
-pnpm install
+### Docker Deployment
 
-# Start development server
-pnpm run start:dev
-
-# Build for production
-pnpm run build
+```dockerfile
+# Example Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "start:prod"]
 ```
 
-## Environment Variables
+## 🏗️ Architecture
 
-Create a `.env` file in the root directory with the following variables:
+### Technology Stack
 
-```bash
-# Environment
-NODE_ENV=development
-PORT=3000
+- **Framework**: NestJS (Node.js/TypeScript)
+- **Database**: MySQL with Prisma ORM
+- **Authentication**: JWT with refresh tokens
+- **Security**: Helmet, CORS, Throttling
+- **Documentation**: Swagger/OpenAPI
+- **Validation**: class-validator, Zod
+- **Testing**: Jest
 
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/social_app_db"
+### Project Structure
 
-# Security
-PASSWORD_PEPPER=your-strong-password-pepper-here
-JWT_SECRET=your-jwt-secret-key-here
-
-# Hash Configuration
-HASH_MEMORY_COST=65536
-HASH_TIME_COST=2
-HASH_PARALLELISM=1
-
-# CORS Configuration (Production only)
-# Comma-separated list of allowed frontend URLs
-FRONTEND_URL=https://yourfrontend.com,https://youradmin.com
+```
+src/
+├── auth/           # Authentication module
+├── user/           # User management
+├── post/           # Content management
+├── comment/        # Social interactions
+├── common/         # Shared utilities
+├── prisma/         # Database layer
+└── schemas/        # Validation schemas
 ```
 
-### Required Variables
+## 🤝 Contributing
 
-- `DATABASE_URL`: PostgreSQL connection string
-- `PASSWORD_PEPPER`: Additional security layer for password hashing
-- `JWT_SECRET`: Secret key for JWT token generation
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
-### Optional Variables
+## 📄 License
 
-- `NODE_ENV`: Environment mode (development/test/production)
-- `PORT`: Server port (default: 3000)
-- `HASH_*`: Argon2 password hashing configuration
-- `FRONTEND_URL`: Allowed CORS origins for production (development allows all)
+This project is [MIT licensed](LICENSE).
+
+## 🔗 Resources
+
+- [NestJS Documentation](https://docs.nestjs.com)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [MySQL Documentation](https://dev.mysql.com/doc)
+
+---
+
+**Built with using NestJS**
