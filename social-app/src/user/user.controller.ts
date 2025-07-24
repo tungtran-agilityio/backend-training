@@ -12,10 +12,6 @@ import {
   Req,
   Delete,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { UpdateUserDto } from './dtos/update-user.dto';
 import { Request } from 'express';
 import {
   ApiBadRequestResponse,
@@ -27,7 +23,24 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+
+import { UserService } from './user.service';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+
+// Common decorators
+const ApiServerErrorResponse = () =>
+  ApiInternalServerErrorResponse({ description: 'Unexpected failure' });
+
+interface UserWithDeletion {
+  id: string;
+  email: string;
+  deletedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 @Controller('users')
 @ApiTags('users')
@@ -39,34 +52,18 @@ export class UserController {
     description: 'Missing required fields or invalid input data',
   })
   @ApiConflictResponse({ description: 'Email already exists' })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected failure during user registration',
-  })
+  @ApiServerErrorResponse()
   @ApiCreatedResponse({ type: UserResponseDto })
   async createUser(@Body() userCreateInput: CreateUserDto) {
-    // get user by email
-    const user = await this.userService.getUser({
-      email: userCreateInput.email,
-    });
-
-    if (user) {
-      throw new ConflictException('User already exists');
-    }
-
+    await this.validateEmailNotExists(userCreateInput.email);
     return this.userService.createUser(userCreateInput);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiUnauthorizedResponse({
-    description: 'Missing or invalid token',
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found or inaccessible',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected failure',
-  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
+  @ApiNotFoundResponse({ description: 'User not found or inaccessible' })
+  @ApiServerErrorResponse()
   @ApiOkResponse({ type: UserResponseDto })
   async getUser(@Param('id', ParseUUIDPipe) id: string) {
     const user = await this.userService.getUser({ id });
@@ -80,37 +77,24 @@ export class UserController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiBadRequestResponse({
-    description: 'Invalid field value or format',
-  })
-  @ApiUnauthorizedResponse({
-    description: 'Missing or invalid token',
-  })
+  @ApiBadRequestResponse({ description: 'Invalid field value or format' })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiNotFoundResponse({
     description: 'User not found or not owned by requester',
   })
+  @ApiServerErrorResponse()
   @ApiOkResponse({ type: UserResponseDto })
   async updateUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userUpdateInput: UpdateUserDto,
     @Req() req: Request,
   ) {
-    // check userid in access token
-    const { userId } = req.user as { userId: string };
-    const existingUser = await this.userService.getUser({ id });
+    const user = this.extractUserFromRequest(req);
+    await this.validateUserOwnership(id, user.userId);
 
-    if (!existingUser || existingUser.deletedAt !== null || userId !== id) {
-      throw new NotFoundException('User not found or not owned by requester');
-    }
-
-    // check if email is already in use
+    // Check if email is already in use by another user
     if (userUpdateInput.email) {
-      const existingUserWithEmail = await this.userService.getUser({
-        email: userUpdateInput.email,
-      });
-      if (existingUserWithEmail && existingUserWithEmail.id !== id) {
-        throw new ConflictException('Email already in use');
-      }
+      await this.validateEmailNotExists(userUpdateInput.email, id);
     }
 
     return this.userService.updateUser({ id }, userUpdateInput);
@@ -118,15 +102,11 @@ export class UserController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  @ApiUnauthorizedResponse({
-    description: 'Missing or invalid token',
-  })
+  @ApiUnauthorizedResponse({ description: 'Missing or invalid token' })
   @ApiNotFoundResponse({
     description: 'User not found or not owned by requester',
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Unexpected failure',
-  })
+  @ApiServerErrorResponse()
   @ApiOkResponse({
     schema: {
       example: {
@@ -138,15 +118,45 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
   ) {
-    const { userId } = req.user as { userId: string };
-    const existingUser = await this.userService.getUser({ id });
-
-    if (!existingUser || existingUser.deletedAt !== null || userId !== id) {
-      throw new NotFoundException('User not found or not owned by requester');
-    }
+    const user = this.extractUserFromRequest(req);
+    await this.validateUserOwnership(id, user.userId);
 
     await this.userService.deleteUser({ id });
 
     return { message: 'User deleted successfully' };
+  }
+
+  private extractUserFromRequest(req: Request): { userId: string } {
+    return req.user as { userId: string };
+  }
+
+  private async validateEmailNotExists(
+    email: string,
+    excludeUserId?: string,
+  ): Promise<void> {
+    const existingUser = await this.userService.getUser({ email });
+
+    if (existingUser && (!excludeUserId || existingUser.id !== excludeUserId)) {
+      throw new ConflictException(
+        excludeUserId ? 'Email already in use' : 'User already exists',
+      );
+    }
+  }
+
+  private async validateUserOwnership(
+    userId: string,
+    requesterId: string,
+  ): Promise<UserWithDeletion> {
+    const existingUser = await this.userService.getUser({ id: userId });
+
+    if (
+      !existingUser ||
+      existingUser.deletedAt !== null ||
+      requesterId !== userId
+    ) {
+      throw new NotFoundException('User not found or not owned by requester');
+    }
+
+    return existingUser;
   }
 }
