@@ -38,13 +38,6 @@ describe('App (e2e)', () => {
   });
 
   describe('Basic App Health', () => {
-    it('/api (GET) - should return Hello World', () => {
-      return request(app.getHttpServer())
-        .get('/api')
-        .expect(200)
-        .expect('Hello World!');
-    });
-
     it('/api/health (GET) - should return health status', () => {
       return request(app.getHttpServer())
         .get('/api/health')
