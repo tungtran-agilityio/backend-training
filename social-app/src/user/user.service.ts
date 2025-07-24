@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, User } from 'generated/prisma';
+import { Prisma } from 'generated/prisma';
 import { HashService } from 'src/common/services/hash.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  UserData,
+  SafeUserData,
+  MinimalUserData,
+  GetUsersParams,
+  CreateUserInput,
+  UpdateUserInput,
+} from './interfaces/user-response.interfaces';
 
 @Injectable()
 export class UserService {
@@ -12,19 +20,13 @@ export class UserService {
 
   async getUser(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<User | null> {
+  ): Promise<UserData | null> {
     return this.prismaService.user.findUnique({
       where: userWhereUniqueInput,
     });
   }
 
-  async getUsers(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.UserWhereUniqueInput;
-    where?: Prisma.UserWhereInput;
-    orderBy?: Prisma.UserOrderByWithRelationInput;
-  }): Promise<User[]> {
+  async getUsers(params: GetUsersParams): Promise<UserData[]> {
     const { skip, take, cursor, where, orderBy } = params;
     return this.prismaService.user.findMany({
       skip,
@@ -35,12 +37,7 @@ export class UserService {
     });
   }
 
-  async createUser(
-    data: Pick<
-      Prisma.UserCreateInput,
-      'email' | 'firstName' | 'lastName' | 'password'
-    >,
-  ): Promise<Omit<User, 'password' | 'deletedAt'>> {
+  async createUser(data: CreateUserInput): Promise<SafeUserData> {
     const hashedPassword = await this.hashService.hash(data.password);
     return this.prismaService.user.create({
       data: {
@@ -62,11 +59,8 @@ export class UserService {
 
   async updateUser(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-    data: Pick<
-      Prisma.UserUpdateInput,
-      'firstName' | 'lastName' | 'email' | 'password'
-    >,
-  ): Promise<Omit<User, 'password' | 'deletedAt'>> {
+    data: UpdateUserInput,
+  ): Promise<SafeUserData> {
     return this.prismaService.user.update({
       where: userWhereUniqueInput,
       data,
@@ -83,7 +77,7 @@ export class UserService {
 
   async deleteUser(
     userWhereUniqueInput: Prisma.UserWhereUniqueInput,
-  ): Promise<Omit<User, 'password' | 'deletedAt' | 'createdAt' | 'updatedAt'>> {
+  ): Promise<MinimalUserData> {
     return this.prismaService.user.update({
       where: userWhereUniqueInput,
       data: {

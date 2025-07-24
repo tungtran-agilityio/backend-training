@@ -32,7 +32,12 @@ import {
   ApiUnauthorizedErrorResponse,
 } from 'src/common/decorators/api-common.decorators';
 import { ControllerUtils } from 'src/common/utils/controller.utils';
-import { UserEntity } from 'src/common/interfaces/controller.interfaces';
+import {
+  SafeUserData,
+  UserData,
+  DeleteUserResponse,
+  ValidationResult,
+} from './interfaces/user-response.interfaces';
 
 @Controller('users')
 @ApiTags('users')
@@ -46,7 +51,9 @@ export class UserController {
   @ApiConflictResponse({ description: 'Email already exists' })
   @ApiServerErrorResponse()
   @ApiCreatedResponse({ type: UserResponseDto })
-  async createUser(@Body() userCreateInput: CreateUserDto) {
+  async createUser(
+    @Body() userCreateInput: CreateUserDto,
+  ): Promise<SafeUserData> {
     await this.validateEmailNotExists(userCreateInput.email);
     return this.userService.createUser(userCreateInput);
   }
@@ -57,7 +64,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'User not found or inaccessible' })
   @ApiServerErrorResponse()
   @ApiOkResponse({ type: UserResponseDto })
-  async getUser(@Param('id', ParseUUIDPipe) id: string) {
+  async getUser(@Param('id', ParseUUIDPipe) id: string): Promise<UserData> {
     const user = await this.userService.getUser({ id });
 
     if (!user) {
@@ -80,7 +87,7 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() userUpdateInput: UpdateUserDto,
     @Req() req: Request,
-  ) {
+  ): Promise<SafeUserData> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateUserOwnership(id, user.userId);
 
@@ -109,7 +116,7 @@ export class UserController {
   async deleteUser(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
-  ) {
+  ): Promise<DeleteUserResponse> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateUserOwnership(id, user.userId);
 
@@ -121,7 +128,7 @@ export class UserController {
   private async validateEmailNotExists(
     email: string,
     excludeUserId?: string,
-  ): Promise<void> {
+  ): ValidationResult {
     const existingUser = await this.userService.getUser({ email });
 
     if (existingUser && (!excludeUserId || existingUser.id !== excludeUserId)) {
@@ -134,7 +141,7 @@ export class UserController {
   private async validateUserOwnership(
     userId: string,
     requesterId: string,
-  ): Promise<UserEntity> {
+  ): Promise<UserData> {
     const existingUser = await this.userService.getUser({ id: userId });
 
     if (
