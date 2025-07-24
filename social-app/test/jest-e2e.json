@@ -5,5 +5,14 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "globalSetup": "./jest-setup.ts",
+  "globalTeardown": "./jest-teardown.ts",
+  "setupFilesAfterEnv": ["./test-setup-after-env.ts"],
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1",
+    "^generated/(.*)$": "<rootDir>/../generated/$1"
+  },
+  "testTimeout": 60000,
+  "maxWorkers": 1
 }

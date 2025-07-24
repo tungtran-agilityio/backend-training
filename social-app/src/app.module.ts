@@ -5,6 +5,7 @@ import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { AppController } from './app.controller';
 import envSchema from './schemas/env.schema';
 
 @Module({
@@ -20,7 +21,7 @@ import envSchema from './schemas/env.schema';
     AuthModule,
     CommonModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
