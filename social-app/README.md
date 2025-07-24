@@ -122,6 +122,30 @@ Helmet automatically sets several security-related HTTP headers:
 - **Referrer-Policy**: Controls referrer information
 - **Content-Security-Policy**: Prevents code injection (disabled in development for Swagger compatibility)
 
+### CORS (Cross-Origin Resource Sharing)
+
+CORS is configured to allow frontend applications to communicate with the API:
+
+#### Development Mode
+- **Origin**: All origins allowed (`*`)
+- **Credentials**: Enabled for cookie-based authentication
+- **Methods**: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`
+- **Headers**: `Content-Type`, `Authorization`
+
+#### Production Mode
+- **Origin**: Configured via `FRONTEND_URL` environment variable
+- **Multiple Origins**: Comma-separated URLs (e.g., `https://app.example.com,https://admin.example.com`)
+- **Fallback**: No origins allowed if `FRONTEND_URL` is not set
+
+#### Environment Configuration
+
+```bash
+# Production CORS configuration
+FRONTEND_URL=https://yourfrontend.com,https://youradmin.com
+
+# Development - no configuration needed (allows all origins)
+```
+
 ### Testing Security Headers
 
 You can verify the security headers are working by making a request to any endpoint:
@@ -136,6 +160,8 @@ X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 X-XSS-Protection: 0
 Referrer-Policy: no-referrer
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
 ```
 
 ## API Documentation
