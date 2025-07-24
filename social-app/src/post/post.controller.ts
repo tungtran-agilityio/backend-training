@@ -53,7 +53,10 @@ import {
 
 @ApiTags('posts')
 @ApiBearerAuth()
-@Controller('posts')
+@Controller({
+  path: 'posts',
+  version: '1',
+})
 export class PostController {
   constructor(private readonly postService: PostService) {}
 

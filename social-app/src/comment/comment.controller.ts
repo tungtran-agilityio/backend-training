@@ -48,7 +48,10 @@ import {
 
 @ApiTags('comments')
 @ApiBearerAuth()
-@Controller('posts/:postId/comments')
+@Controller({
+  path: 'posts/:postId/comments',
+  version: '1',
+})
 export class CommentController {
   constructor(
     private readonly commentService: CommentService,

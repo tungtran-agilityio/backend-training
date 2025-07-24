@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -9,17 +9,23 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Enable API versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
+
   app.use(cookieParser());
 
   // Swagger setup
   const config = new DocumentBuilder()
-    .setTitle('Social App API')
-    .setDescription('API documentation for the Social App')
+    .setTitle('Social App API v1')
+    .setDescription('API documentation for the Social App v1')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/v1/docs', app, document);
 
   app.useGlobalPipes(
     new ValidationPipe({

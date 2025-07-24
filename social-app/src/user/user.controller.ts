@@ -39,7 +39,10 @@ import {
   ValidationResult,
 } from './interfaces/user-response.interfaces';
 
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 @ApiTags('users')
 export class UserController {
   constructor(private userService: UserService) {}
