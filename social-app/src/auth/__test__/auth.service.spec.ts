@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
-import { UserService } from '../user/user.service';
-import { HashService } from '../common/services/hash.service';
+import { AuthService } from '../auth.service';
+import { UserService } from 'src/user/user.service';
+import { HashService } from 'src/common/services/hash.service';
 import { User } from 'generated/prisma';
 
 describe('AuthService', () => {

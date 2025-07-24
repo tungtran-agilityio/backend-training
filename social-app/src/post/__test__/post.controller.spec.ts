@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
-import { PostController } from './post.controller';
-import { PostService } from './post.service';
-import { CreatePostDto } from './dtos/create-post.dto';
-import { UpdatePostDto } from './dtos/update-post.dto';
-import { UpdatePostVisibilityDto } from './dtos/update-post-visibility.dto';
-import { GetPostsQuery } from './dtos/get-posts-query.dto';
+import { PostController } from '../post.controller';
+import { PostService } from '../post.service';
+import { CreatePostDto } from '../dtos/create-post.dto';
+import { UpdatePostDto } from '../dtos/update-post.dto';
+import { UpdatePostVisibilityDto } from '../dtos/update-post-visibility.dto';
+import { GetPostsQuery } from '../dtos/get-posts-query.dto';
 
 describe('PostController', () => {
   let controller: PostController;

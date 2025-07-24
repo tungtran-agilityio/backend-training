@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CommentService } from './comment.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { CommentService } from '../comment.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma, Comment } from 'generated/prisma';
 
 describe('CommentService', () => {

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { HashService } from './hash.service';
+import { HashService } from '../hash.service';
 import * as argon2 from 'argon2';
 
 // Mock the argon2 module

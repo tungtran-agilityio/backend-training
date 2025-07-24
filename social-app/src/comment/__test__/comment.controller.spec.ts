@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
-import { CommentController } from './comment.controller';
-import { CommentService } from './comment.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateCommentDto } from './dtos/create-comment.dto';
-import { UpdateCommentDto } from './dtos/update-comment.dto';
-import { GetCommentsQuery } from './dtos/get-comments-query.dto';
+import { CommentController } from '../comment.controller';
+import { CommentService } from '../comment.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateCommentDto } from '../dtos/create-comment.dto';
+import { UpdateCommentDto } from '../dtos/update-comment.dto';
+import { GetCommentsQuery } from '../dtos/get-comments-query.dto';
 
 describe('CommentController', () => {
   let controller: CommentController;
