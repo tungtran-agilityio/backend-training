@@ -150,10 +150,11 @@ describe('AuthController', () => {
     });
 
     it('should handle malformed login data', async () => {
+      // Explicitly test with invalid data types that might come from malformed requests
       const malformedDto = {
-        email: null,
-        password: undefined,
-      } as any;
+        email: null as unknown as string,
+        password: undefined as unknown as string,
+      };
       const authError = new BadRequestException(
         'Missing or invalid credentials',
       );

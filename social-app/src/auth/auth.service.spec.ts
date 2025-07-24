@@ -210,7 +210,9 @@ describe('AuthService', () => {
       it('should handle null email', async () => {
         userService.getUser.mockResolvedValue(null);
 
-        await expect(service.signIn(null as any, password)).rejects.toThrow(
+        await expect(
+          service.signIn(null as unknown as string, password),
+        ).rejects.toThrow(
           new BadRequestException('Missing or invalid credentials'),
         );
 
@@ -221,7 +223,9 @@ describe('AuthService', () => {
         userService.getUser.mockResolvedValue(mockUser);
         hashService.verify.mockResolvedValue(false);
 
-        await expect(service.signIn(email, null as any)).rejects.toThrow(
+        await expect(
+          service.signIn(email, null as unknown as string),
+        ).rejects.toThrow(
           new BadRequestException('Missing or invalid credentials'),
         );
 
@@ -263,7 +267,10 @@ describe('AuthService', () => {
     });
 
     it('should handle user with missing id', async () => {
-      const invalidUser = { id: undefined, email: 'test@example.com' } as any;
+      const invalidUser = {
+        id: undefined,
+        email: 'test@example.com',
+      } as unknown as User;
       const expectedToken = 'access-token-123';
       jwtService.signAsync.mockResolvedValue(expectedToken);
 
@@ -277,7 +284,10 @@ describe('AuthService', () => {
     });
 
     it('should handle user with missing email', async () => {
-      const invalidUser = { id: 'user-123', email: undefined } as any;
+      const invalidUser = {
+        id: 'user-123',
+        email: undefined,
+      } as unknown as User;
       const expectedToken = 'access-token-123';
       jwtService.signAsync.mockResolvedValue(expectedToken);
 
@@ -335,7 +345,10 @@ describe('AuthService', () => {
     });
 
     it('should handle user with missing id', async () => {
-      const invalidUser = { id: undefined, email: 'test@example.com' } as any;
+      const invalidUser = {
+        id: undefined,
+        email: 'test@example.com',
+      } as unknown as User;
       const expectedToken = 'refresh-token-456';
       jwtService.signAsync.mockResolvedValue(expectedToken);
 
@@ -349,7 +362,10 @@ describe('AuthService', () => {
     });
 
     it('should handle user with missing email', async () => {
-      const invalidUser = { id: 'user-123', email: undefined } as any;
+      const invalidUser = {
+        id: 'user-123',
+        email: undefined,
+      } as unknown as User;
       const expectedToken = 'refresh-token-456';
       jwtService.signAsync.mockResolvedValue(expectedToken);
 

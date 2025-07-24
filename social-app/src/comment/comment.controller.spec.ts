@@ -68,7 +68,7 @@ describe('CommentController', () => {
   };
 
   const mockUser = { userId: 'user-789' };
-  const mockRequest = { user: mockUser } as any;
+  const mockRequest = { user: mockUser } as unknown as Request;
 
   const mockCommentService = {
     createComment: jest.fn(),

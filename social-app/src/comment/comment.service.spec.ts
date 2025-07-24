@@ -46,7 +46,7 @@ describe('CommentService', () => {
       count: jest.fn(),
       update: jest.fn(),
     },
-  } as any;
+  } as unknown as PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
