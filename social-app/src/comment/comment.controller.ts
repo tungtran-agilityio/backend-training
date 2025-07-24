@@ -35,6 +35,7 @@ import { GetCommentsQuery } from './dtos/get-comments-query.dto';
 import { CommentResponseDto } from './dtos/comment-response.dto';
 
 @ApiTags('comments')
+@ApiBearerAuth()
 @Controller('posts/:postId/comments')
 export class CommentController {
   constructor(
@@ -47,6 +48,7 @@ export class CommentController {
   @ApiBearerAuth()
   @ApiCreatedResponse({
     type: CommentResponseDto,
+    description: 'Comment created successfully',
   })
   @ApiBadRequestResponse({ description: 'Validation failed' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })

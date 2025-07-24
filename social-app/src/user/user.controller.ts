@@ -24,11 +24,13 @@ import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserResponseDto } from './dtos/user-response.dto';
 
 @Controller('users')
+@ApiTags('users')
 export class UserController {
   constructor(private userService: UserService) {}
 
