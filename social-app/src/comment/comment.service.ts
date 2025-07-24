@@ -1,18 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  CommentData,
+  GetCommentsResponse,
+  GetCommentsParams,
+} from './interfaces/comment-response.interfaces';
 
 @Injectable()
 export class CommentService {
   constructor(private prisma: PrismaService) {}
 
-  async createComment(comment: Prisma.CommentCreateInput) {
+  async createComment(
+    comment: Prisma.CommentCreateInput,
+  ): Promise<CommentData> {
     return this.prisma.comment.create({
       data: comment,
     });
   }
 
-  async getComment(commentWhereUniqueInput: Prisma.CommentWhereUniqueInput) {
+  async getComment(
+    commentWhereUniqueInput: Prisma.CommentWhereUniqueInput,
+  ): Promise<CommentData | null> {
     return this.prisma.comment.findUnique({
       where: commentWhereUniqueInput,
     });
@@ -26,15 +35,7 @@ export class CommentService {
     search,
     sortBy = 'createdAt',
     sortOrder = 'desc',
-  }: {
-    page?: number;
-    limit?: number;
-    postId?: string;
-    authorId?: string;
-    search?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-  }) {
+  }: GetCommentsParams): Promise<GetCommentsResponse> {
     const where: Prisma.CommentWhereInput = {};
     if (postId) where.postId = postId;
     if (authorId) where.authorId = authorId;
@@ -66,14 +67,16 @@ export class CommentService {
   async updateComment(
     commentWhereUniqueInput: Prisma.CommentWhereUniqueInput,
     comment: Prisma.CommentUpdateInput,
-  ) {
+  ): Promise<CommentData> {
     return this.prisma.comment.update({
       where: commentWhereUniqueInput,
       data: comment,
     });
   }
 
-  async deleteComment(commentWhereUniqueInput: Prisma.CommentWhereUniqueInput) {
+  async deleteComment(
+    commentWhereUniqueInput: Prisma.CommentWhereUniqueInput,
+  ): Promise<CommentData> {
     return this.prisma.comment.update({
       where: commentWhereUniqueInput,
       data: {

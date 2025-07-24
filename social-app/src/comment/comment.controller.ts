@@ -40,6 +40,11 @@ import {
   commonValidationPipe,
 } from 'src/common/utils/controller.utils';
 import { CommentEntity } from 'src/common/interfaces/controller.interfaces';
+import {
+  CommentData,
+  GetCommentsResponse,
+  DeleteCommentResponse,
+} from './interfaces/comment-response.interfaces';
 
 @ApiTags('comments')
 @ApiBearerAuth()
@@ -66,7 +71,7 @@ export class CommentController {
     @Param('postId', ParseUUIDPipe) postId: string,
     @Body(commonValidationPipe) body: CreateCommentDto,
     @Req() req: Request,
-  ) {
+  ): Promise<CommentData> {
     await this.validatePostExists(postId);
     const user = ControllerUtils.extractUserFromRequest(req);
 
@@ -125,7 +130,7 @@ export class CommentController {
   async getComments(
     @Param('postId', ParseUUIDPipe) postId: string,
     @Query(commonValidationPipe) query: GetCommentsQuery,
-  ) {
+  ): Promise<GetCommentsResponse> {
     await this.validatePostExists(postId, 'Post not found or inaccessible');
 
     return this.commentService.getComments({
@@ -141,7 +146,9 @@ export class CommentController {
   @ApiUnauthorizedErrorResponse()
   @ApiNotFoundResponse({ description: 'Comment not found or inaccessible' })
   @ApiServerErrorResponse()
-  async getComment(@Param('id', ParseUUIDPipe) id: string) {
+  async getComment(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CommentData> {
     const comment = await this.commentService.getComment({ id });
 
     if (!comment) {
@@ -165,7 +172,7 @@ export class CommentController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body(commonValidationPipe) body: UpdateCommentDto,
     @Req() req: Request,
-  ) {
+  ): Promise<CommentData> {
     const user = ControllerUtils.extractUserFromRequest(req);
     await this.validateCommentOwnership(id, user.userId);
 
@@ -188,7 +195,7 @@ export class CommentController {
   async deleteComment(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request,
-  ) {
+  ): Promise<DeleteCommentResponse> {
     const user = ControllerUtils.extractUserFromRequest(req);
     const comment = await this.validateCommentOwnership(id, user.userId);
 
