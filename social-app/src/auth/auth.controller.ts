@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
@@ -24,6 +25,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @Throttle({ short: { limit: 3, ttl: 60000 } }) // 3 attempts per minute
   @ApiBadRequestResponse({ description: 'Missing or invalid credentials' })
   @ApiUnauthorizedErrorResponse()
   @ApiServerErrorResponse()

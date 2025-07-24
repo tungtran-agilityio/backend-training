@@ -105,6 +105,8 @@ A NestJS-based social media application with authentication, posts, comments, an
 - Comment system
 - API versioning (v1)
 - Security middleware with Helmet
+- CORS configuration for cross-origin requests
+- Rate limiting and throttling protection
 - Comprehensive API documentation with Swagger
 
 ## Security
@@ -146,6 +148,54 @@ FRONTEND_URL=https://yourfrontend.com,https://youradmin.com
 # Development - no configuration needed (allows all origins)
 ```
 
+### Rate Limiting
+
+The API implements multiple layers of rate limiting to prevent abuse and ensure fair usage:
+
+#### Global Rate Limits
+
+All endpoints are protected with multiple rate limiting tiers:
+
+- **Short Term**: 3 requests per second
+- **Medium Term**: 20 requests per 10 seconds  
+- **Long Term**: 100 requests per minute
+
+#### Endpoint-Specific Limits
+
+Sensitive endpoints have additional restrictions:
+
+| Endpoint                  | Limit      | Duration | Purpose                     |
+| ------------------------- | ---------- | -------- | --------------------------- |
+| `POST /api/v1/auth/login` | 3 requests | 1 minute | Prevent brute force attacks |
+| `POST /api/v1/users`      | 2 requests | 1 minute | Prevent spam registrations  |
+
+#### Rate Limit Headers
+
+When rate limits are exceeded, the API returns:
+
+- **Status Code**: `429 Too Many Requests`
+- **Headers**: 
+  - `X-RateLimit-Limit`: Request limit
+  - `X-RateLimit-Remaining`: Remaining requests
+  - `X-RateLimit-Reset`: Time when limit resets
+
+#### Testing Rate Limits
+
+You can test rate limiting by making rapid requests:
+
+```bash
+# Test global rate limit (should get 429 after 3 requests)
+for i in {1..5}; do curl -w "\n%{http_code}\n" http://localhost:3000/api/v1/health; done
+
+# Test login rate limit
+for i in {1..5}; do 
+  curl -X POST http://localhost:3000/api/v1/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com","password":"test"}' \
+    -w "\n%{http_code}\n"
+done
+```
+
 ### Testing Security Headers
 
 You can verify the security headers are working by making a request to any endpoint:
@@ -162,6 +212,9 @@ X-XSS-Protection: 0
 Referrer-Policy: no-referrer
 Access-Control-Allow-Origin: *
 Access-Control-Allow-Credentials: true
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 99
+X-RateLimit-Reset: 1674567890
 ```
 
 ## API Documentation
@@ -182,3 +235,42 @@ pnpm run start:dev
 # Build for production
 pnpm run build
 ```
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Environment
+NODE_ENV=development
+PORT=3000
+
+# Database
+DATABASE_URL="postgresql://username:password@localhost:5432/social_app_db"
+
+# Security
+PASSWORD_PEPPER=your-strong-password-pepper-here
+JWT_SECRET=your-jwt-secret-key-here
+
+# Hash Configuration
+HASH_MEMORY_COST=65536
+HASH_TIME_COST=2
+HASH_PARALLELISM=1
+
+# CORS Configuration (Production only)
+# Comma-separated list of allowed frontend URLs
+FRONTEND_URL=https://yourfrontend.com,https://youradmin.com
+```
+
+### Required Variables
+
+- `DATABASE_URL`: PostgreSQL connection string
+- `PASSWORD_PEPPER`: Additional security layer for password hashing
+- `JWT_SECRET`: Secret key for JWT token generation
+
+### Optional Variables
+
+- `NODE_ENV`: Environment mode (development/test/production)
+- `PORT`: Server port (default: 3000)
+- `HASH_*`: Argon2 password hashing configuration
+- `FRONTEND_URL`: Allowed CORS origins for production (development allows all)

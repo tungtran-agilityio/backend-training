@@ -21,6 +21,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -48,6 +49,7 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
+  @Throttle({ short: { limit: 2, ttl: 60000 } }) // 2 registrations per minute
   @ApiBadRequestResponse({
     description: 'Missing required fields or invalid input data',
   })
