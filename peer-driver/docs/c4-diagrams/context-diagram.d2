@@ -99,8 +99,8 @@ Payment Gateway: {
     - Deposit management
   |
   style: {
-    fill: "#ffcdd2"
-    stroke: "#c62828"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -135,8 +135,8 @@ Communication Services: {
     - Push notifications
   |
   style: {
-    fill: "#dcedc8"
-    stroke: "#558b2f"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -153,8 +153,8 @@ Cloud Storage: {
     - KYC documents
   |
   style: {
-    fill: "#c5cae9"
-    stroke: "#303f9f"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -166,9 +166,6 @@ Car Owner -> Car Sharing Platform: |md
   [HTTPS/Mobile App/Web]
 | {
   style: {
-    stroke: "#1565c0"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -177,9 +174,6 @@ Car Renter -> Car Sharing Platform: |md
   [HTTPS/Mobile App/Web]
 | {
   style: {
-    stroke: "#2e7d32"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -188,9 +182,6 @@ Platform Admin -> Car Sharing Platform: |md
   [HTTPS/Admin Dashboard]
 | {
   style: {
-    stroke: "#ef6c00"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -200,9 +191,6 @@ Car Sharing Platform -> Payment Gateway: |md
   [HTTPS/API]
 | {
   style: {
-    stroke: "#c62828"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -211,9 +199,6 @@ Car Sharing Platform -> KYC Verification Service: |md
   [HTTPS/API]
 | {
   style: {
-    stroke: "#00695c"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -222,9 +207,7 @@ Car Sharing Platform -> Communication Services: |md
   [SMTP/SMS API/FCM]
 | {
   style: {
-    stroke: "#558b2f"
-    stroke-width: 3
-    font-size: 14
+
   }
 }
 
@@ -233,22 +216,6 @@ Car Sharing Platform -> Cloud Storage: |md
   [HTTPS/S3 API]
 | {
   style: {
-    stroke: "#303f9f"
-    stroke-width: 3
-    font-size: 14
+
   }
 }
-
-# Legend
-vars: {
-  d2-legend: {
-    "Car Owner": {shape: c4-person; style.fill: "#bbdefb"; style.stroke: "#1565c0"}
-    "Car Renter": {shape: c4-person; style.fill: "#c8e6c9"; style.stroke: "#2e7d32"}
-    "Platform Admin": {shape: c4-person; style.fill: "#ffe0b2"; style.stroke: "#ef6c00"}
-    "Core Platform": {style.fill: "#e1bee7"; style.stroke: "#6a1b9a"}
-    "Payment System": {style.fill: "#ffcdd2"; style.stroke: "#c62828"}
-    "Verification System": {style.fill: "#b2dfdb"; style.stroke: "#00695c"}
-    "Communication": {style.fill: "#dcedc8"; style.stroke: "#558b2f"}
-    "Storage": {style.fill: "#c5cae9"; style.stroke: "#303f9f"}
-  }
-} 
