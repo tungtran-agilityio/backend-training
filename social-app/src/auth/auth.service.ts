@@ -1,0 +1,52 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
+import { HashService } from 'src/common/services/hash.service';
+import { JwtService } from '@nestjs/jwt';
+import { User } from 'generated/prisma';
+import { SignInResponse } from './interfaces/auth-response.interfaces';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly userService: UserService,
+    private readonly hashService: HashService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async signIn(email: string, password: string): Promise<SignInResponse> {
+    const user = await this.userService.getUser({ email });
+
+    if (
+      user &&
+      user.deletedAt === null &&
+      (await this.hashService.verify(user.password, password))
+    ) {
+      // Remove password from user object
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, ...userData } = user;
+
+      // Generate tokens
+      const accessToken = await this.generateAccessToken(userData);
+      const refreshToken = await this.generateRefreshToken(userData);
+      return { user: userData, accessToken, refreshToken };
+    }
+
+    throw new BadRequestException('Missing or invalid credentials');
+  }
+
+  async generateAccessToken(user: Pick<User, 'id' | 'email'>): Promise<string> {
+    return this.jwtService.signAsync(
+      { sub: user.id, email: user.email }, // Only user ID and email
+      { expiresIn: '15m' },
+    );
+  }
+
+  async generateRefreshToken(
+    user: Pick<User, 'id' | 'email'>,
+  ): Promise<string> {
+    return this.jwtService.signAsync(
+      { sub: user.id, email: user.email }, // Only user ID and email
+      { expiresIn: '7d' },
+    );
+  }
+}

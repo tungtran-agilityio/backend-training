@@ -1,0 +1,221 @@
+direction: right
+
+# ================================
+# C4 Context Diagram - Car Sharing Platform
+# ================================
+
+# Primary Users
+Car Owner: {
+  shape: c4-person
+  label: |md
+    ## Car Owner
+    **[Person]**
+    
+    Vehicle owners who list cars for rent.
+    
+    **Activities:**
+    - List vehicles
+    - Manage bookings
+    - Handle handoffs
+  |
+  style: {
+    fill: "#bbdefb"
+    stroke: "#1565c0"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+Car Renter: {
+  shape: c4-person  
+  label: |md
+    ## Car Renter
+    **[Person]**
+    
+    Users who search and book vehicles.
+    
+    **Activities:**
+    - Search cars
+    - Book & pay
+    - Rate experience
+  |
+  style: {
+    fill: "#c8e6c9"
+    stroke: "#2e7d32"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+Platform Admin: {
+  shape: c4-person
+  label: |md
+    ## Platform Administrator
+    **[Person]**
+    
+    Support staff managing disputes and operations.
+  |
+  style: {
+    fill: "#ffe0b2"
+    stroke: "#ef6c00"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+# Core System
+Car Sharing Platform: {
+  label: |md
+    ## Peer-to-Peer Car Sharing Platform
+    **[Software System]**
+    
+    Digital marketplace for direct car sharing.
+    
+    **Features:**
+    - KYC verification
+    - Vehicle listing
+    - Secure payments
+    - Trip handoff
+    - P2P messaging
+  
+  |
+  style: {
+    fill: "#e1bee7"
+    stroke: "#6a1b9a"
+    stroke-width: 4
+    font-size: 16
+  }
+}
+
+# External Systems
+Payment Gateway: {
+  label: |md
+    ## Payment Gateway
+    **[External System: Stripe/Local PSP]**
+    
+    Payment processing:
+    - Card tokenization  
+    - Fee capture  
+    - Deposit management
+  |
+  style: {
+    fill: "#b2dfdb"
+    stroke: "#00695c"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+KYC Verification Service: {
+  label: |md
+    ## KYC Verification Service
+    **[External System]**
+    
+    Identity verification:
+    - Document OCR  
+    - Selfie matching  
+    - Fraud detection
+  |
+  style: {
+    fill: "#b2dfdb"
+    stroke: "#00695c"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+Communication Services: {
+  label: |md
+    ## Communication Services
+    **[External System]**
+    
+    Multi-channel notifications:
+    - SMS alerts  
+    - Email confirmations  
+    - Push notifications
+  |
+  style: {
+    fill: "#b2dfdb"
+    stroke: "#00695c"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+Cloud Storage: {
+  label: |md
+    ## Cloud Storage
+    **[External System: AWS S3]**
+    
+    Secure file storage:
+    - Vehicle photos  
+    - Trip images  
+    - KYC documents
+  |
+  style: {
+    fill: "#b2dfdb"
+    stroke: "#00695c"
+    stroke-width: 3
+    font-size: 16
+  }
+}
+
+# User to Platform Relationships
+Car Owner -> Car Sharing Platform: |md
+  Lists vehicles & manages bookings
+  [HTTPS/Mobile App/Web]
+| {
+  style: {
+  }
+}
+
+Car Renter -> Car Sharing Platform: |md
+  Searches & books vehicles
+  [HTTPS/Mobile App/Web]
+| {
+  style: {
+  }
+}
+
+Platform Admin -> Car Sharing Platform: |md
+  Manages users & operations
+  [HTTPS/Admin Dashboard]
+| {
+  style: {
+  }
+}
+
+# Platform to External Systems
+Car Sharing Platform -> Payment Gateway: |md
+  Processes payments
+  [HTTPS/API]
+| {
+  style: {
+  }
+}
+
+Car Sharing Platform -> KYC Verification Service: |md
+  Verifies identities
+  [HTTPS/API]
+| {
+  style: {
+  }
+}
+
+Car Sharing Platform -> Communication Services: |md
+  Sends notifications
+  [SMTP/SMS API/FCM]
+| {
+  style: {
+
+  }
+}
+
+Car Sharing Platform -> Cloud Storage: |md
+  Stores files
+  [HTTPS/S3 API]
+| {
+  style: {
+
+  }
+}

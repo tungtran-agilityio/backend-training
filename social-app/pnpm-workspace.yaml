@@ -1,0 +1,11 @@
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@swc/core'
+
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - argon2
+  - cpu-features
+  - prisma
+  - protobufjs
+  - ssh2
