@@ -14,8 +14,8 @@ Car_Owner: {
     Vehicle owners listing cars
   |
   style: {
-    fill: "#bbdefb"
-    stroke: "#1565c0"
+    fill: "#ffe0b2"
+    stroke: "#ef6c00"
     stroke-width: 3
     font-size: 16
   }
@@ -30,24 +30,10 @@ Car_Renter: {
     Users booking vehicles
   |
   style: {
-    fill: "#c8e6c9"
-    stroke: "#2e7d32"
+    fill: "#ffe0b2"
+    stroke: "#ef6c00"
     stroke-width: 3
     font-size: 16
-  }
-}
-
-Car_Sharing_Platform: |md
-  ## Car Sharing Platform
-  [Software System]
-| {
-  shape: rectangle
-  label.near: bottom-left
-  style: {
-    fill: "#ffffff"
-    stroke: "#7b1fa2"
-    stroke-width: 6
-    stroke-dash: 5
   }
 }
 
@@ -66,6 +52,22 @@ Platform_Admin: {
     font-size: 16
   }
 }
+
+
+Car_Sharing_Platform: |md
+  ## Car Sharing Platform
+  [Software System]
+| {
+  shape: rectangle
+  label.near: bottom-left
+  style: {
+    fill: "#ffffff"
+    stroke: "#6a1b9a"
+    stroke-width: 4
+    stroke-dash: 5
+  }
+}
+
 
 # Frontend Applications
 Car_Sharing_Platform.Mobile_Application: {
@@ -105,8 +107,8 @@ Car_Sharing_Platform.Owner_Web_Dashboard: {
     - Photo upload with drag-and-drop interface
   |
   style: {
-    fill: "#e8f5e8"
-    stroke: "#388e3c"
+    fill: "#e3f2fd"
+    stroke: "#1976d2"
     stroke-width: 3
     font-size: 16
   }
@@ -128,8 +130,8 @@ Car_Sharing_Platform.Admin_Dashboard: {
     - KYC review and manual verification workflows
   |
   style: {
-    fill: "#fff3e0"
-    stroke: "#f57c00"
+    fill: "#e3f2fd"
+    stroke: "#1976d2"
     stroke-width: 3
     font-size: 16
   }
@@ -193,8 +195,8 @@ Car_Sharing_Platform.Core.Booking_Service: {
     - Calendar integration and synchronization
   |
   style: {
-    fill: "#f3e5f5"
-    stroke: "#7b1fa2"
+    fill: "#ffebee"
+    stroke: "#d32f2f"
     stroke-width: 3
     font-size: 16
   }
@@ -235,8 +237,8 @@ Car_Sharing_Platform.Core.User_Service: {
     - Account suspension and ban management
   |
   style: {
-    fill: "#e0f2f1"
-    stroke: "#00796b"
+    fill: "#ffebee"
+    stroke: "#d32f2f"
     stroke-width: 3
     font-size: 16
   }
@@ -279,8 +281,8 @@ Car_Sharing_Platform.Cache_Layer: {
     - OTP storage for phone verification
   |
   style: {
-    fill: "#f1f8e9"
-    stroke: "#689f38"
+    fill: "#e8eaf6"
+    stroke: "#3f51b5"
     stroke-width: 3
     font-size: 16
   }
@@ -295,8 +297,8 @@ Payment_Gateway: {
     Payment processing provider
   |
   style: {
-    fill: "#ffcdd2"
-    stroke: "#c62828"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -325,8 +327,8 @@ Communication_Service: {
     Multi-channel notifications
   |
   style: {
-    fill: "#dcedc8"
-    stroke: "#558b2f"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -340,8 +342,8 @@ File_Storage: {
     Image and document storage
   |
   style: {
-    fill: "#c5cae9"
-    stroke: "#303f9f"
+    fill: "#b2dfdb"
+    stroke: "#00695c"
     stroke-width: 3
     font-size: 16
   }
@@ -355,9 +357,6 @@ Car_Owner -> Car_Sharing_Platform.Mobile_Application: |md
   Mobile listing, bookings, handoffs
 | {
   style: {
-    stroke: "#1565c0"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -368,9 +367,6 @@ Car_Owner -> Car_Sharing_Platform.Owner_Web_Dashboard: |md
   Desktop listing management
 | {
   style: {
-    stroke: "#388e3c"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -381,9 +377,6 @@ Car_Renter -> Car_Sharing_Platform.Mobile_Application: |md
   Search, book, communicate, handoff
 | {
   style: {
-    stroke: "#2e7d32"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -394,9 +387,6 @@ Platform_Admin -> Car_Sharing_Platform.Admin_Dashboard: |md
   User management, support, analytics
 | {
   style: {
-    stroke: "#ef6c00"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -408,9 +398,6 @@ Car_Sharing_Platform.Mobile_Application -> Car_Sharing_Platform.API_Gateway: |md
   All mobile functionality
 | {
   style: {
-    stroke: "#1976d2"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -421,9 +408,6 @@ Car_Sharing_Platform.Owner_Web_Dashboard -> Car_Sharing_Platform.API_Gateway: |m
   Owner dashboard features
 | {
   style: {
-    stroke: "#388e3c"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -434,9 +418,6 @@ Car_Sharing_Platform.Admin_Dashboard -> Car_Sharing_Platform.API_Gateway: |md
   Administrative operations
 | {
   style: {
-    stroke: "#f57c00"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -448,9 +429,6 @@ Car_Sharing_Platform.API_Gateway -> Car_Sharing_Platform.Core.Booking_Service: |
   Booking lifecycle management
 | {
   style: {
-    stroke: "#6a1b9a"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -461,9 +439,6 @@ Car_Sharing_Platform.API_Gateway -> Car_Sharing_Platform.Core.Payment_Service: |
   Financial transactions
 | {
   style: {
-    stroke: "#d32f2f"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -474,9 +449,6 @@ Car_Sharing_Platform.API_Gateway -> Car_Sharing_Platform.Core.User_Service: |md
   Profile and KYC management
 | {
   style: {
-    stroke: "#00796b"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -488,9 +460,6 @@ Car_Sharing_Platform.Core.Booking_Service -> Car_Sharing_Platform.Database: |md
   Booking CRUD operations
 | {
   style: {
-    stroke: "#3f51b5"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -501,9 +470,6 @@ Car_Sharing_Platform.Core.Payment_Service -> Car_Sharing_Platform.Database: |md
   Transaction records
 | {
   style: {
-    stroke: "#3f51b5"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -514,9 +480,6 @@ Car_Sharing_Platform.Core.User_Service -> Car_Sharing_Platform.Database: |md
   User profile management
 | {
   style: {
-    stroke: "#3f51b5"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -527,9 +490,6 @@ Car_Sharing_Platform.API_Gateway -> Car_Sharing_Platform.Cache_Layer: |md
   JWT sessions, rate limits
 | {
   style: {
-    stroke: "#689f38"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -541,9 +501,6 @@ Car_Sharing_Platform.Core.Payment_Service -> Payment_Gateway: |md
   Card vault, capture, payouts
 | {
   style: {
-    stroke: "#c62828"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -554,9 +511,6 @@ Car_Sharing_Platform.Core.User_Service -> KYC_Service: |md
   Document OCR, fraud check
 | {
   style: {
-    stroke: "#00695c"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -567,9 +521,6 @@ Car_Sharing_Platform.API_Gateway -> Communication_Service: |md
   OTP, booking alerts
 | {
   style: {
-    stroke: "#558b2f"
-    stroke-width: 3
-    font-size: 14
   }
 }
 
@@ -580,30 +531,5 @@ Car_Sharing_Platform.API_Gateway -> File_Storage: |md
   Photos, presigned uploads
 | {
   style: {
-    stroke: "#303f9f"
-    stroke-width: 3
-    font-size: 14
   }
 }
-
-# Legend
-  vars: {
-    d2-legend: {
-      "Car_Owner": {shape: c4-person; style.fill: "#bbdefb"; style.stroke: "#1565c0"}
-      "Car_Renter": {shape: c4-person; style.fill: "#c8e6c9"; style.stroke: "#2e7d32"}
-      "Platform_Admin": {shape: c4-person; style.fill: "#ffe0b2"; style.stroke: "#ef6c00"}
-      "Car_Sharing_Platform.Mobile_Application": {style.fill: "#e3f2fd"; style.stroke: "#1976d2"}
-      "Car_Sharing_Platform.Owner_Web_Dashboard": {style.fill: "#e3f2fd"; style.stroke: "#1976d2"}
-      "Car_Sharing_Platform.Admin_Dashboard": {style.fill: "#e3f2fd"; style.stroke: "#1976d2"}
-      "Car_Sharing_Platform.API_Gateway": {style.fill: "#e1bee7"; style.stroke: "#6a1b9a"}
-      "Car_Sharing_Platform.Core.Booking_Service": {style.fill: "#f3e5f5"; style.stroke: "#7b1fa2"}
-      "Car_Sharing_Platform.Core.Payment_Service": {style.fill: "#ffebee"; style.stroke: "#d32f2f"}
-      "Car_Sharing_Platform.Core.User_Service": {style.fill: "#e0f2f1"; style.stroke: "#00796b"}
-      "Car_Sharing_Platform.Database": {style.fill: "#e8eaf6"; style.stroke: "#3f51b5"}
-      "Car_Sharing_Platform.Cache_Layer": {style.fill: "#f1f8e9"; style.stroke: "#689f38"}
-      "Payment_Gateway": {style.fill: "#ffcdd2"; style.stroke: "#c62828"}
-      "KYC_Service": {style.fill: "#b2dfdb"; style.stroke: "#00695c"}
-      "Communication_Service": {style.fill: "#dcedc8"; style.stroke: "#558b2f"}
-      "File_Storage": {style.fill: "#c5cae9"; style.stroke: "#303f9f"}
-    }
-  } 
